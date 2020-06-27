@@ -1,15 +1,17 @@
-#### changing header 
-### plotting results in different systems 
+library(colorspace)
 
-simplex.x <- function(x, omitted = 0){
+##### translations to ternary space ####  
+# these normalize -- x does not need to add up to one 
+simplex.x <- function(x){
   if(sum(x) == 0){return(.5)}
-  return( (1 - omitted)*(x[2] + 0.5 * x[3]) / sum(x) + omitted/2)
+  (x[2] + 0.5*x[3])/sum(x)
 }
-simplex.y <- function(x, omitted = 0){
+simplex.y <- function(x){
   if(sum(x) == 0){return(sqrt(.75)*(1/3))}  
-  return( (1 - omitted)*(sqrt(0.75) *  x[3]) / sum(x) + omitted/2)
+  (sqrt(0.75)*x[3])/sum(x)
 } 
 
+# these do not normalize. I don't know if I need both. 
 simplex.x2 <- function(x){
   x[2] + 0.5*x[3]
 }
@@ -21,8 +23,8 @@ simplex.xy <- function(coords){
   c(simplex.x(coords), simplex.y(coords))
 }
 
-
-
+##### adding points, lines, text to a diagram #### 
+# requires translating to ternary to space and calling the base graphics command 
 add.ternary.point = function(point, col = "black", pch = 19, cex = 1, x.offset = 0, y.offset = 0){
   points(x = simplex.x(point) + x.offset, y = simplex.y(point) + y.offset, pch = pch, col = col, cex = cex)
 }
@@ -35,6 +37,7 @@ add.ternary.lines = function(point.1, point.2, col = "black", lwd = 1, lty = 1, 
   lines(x = c(simplex.x(point.1) + x.adj[1], simplex.x(point.2) + x.adj[2]), y = c(simplex.y(point.1) + y.adj[1], simplex.y(point.2) + y.adj[2]), col = col, lwd = lwd, lty = lty, lend = lend)
 }
 
+# this version allows for an overhang. useful for making diagrams in paper. could be cleaned up of course. 
 add.ternary.lines2 = function(point.1, point.2, col = "black", lwd = 1, lty = 1, lend = 0, overhang = 0){
   xs = c(simplex.x2(point.1), simplex.x2(point.2))
   ys = c(simplex.y2(point.1), simplex.y2(point.2))
@@ -55,9 +58,17 @@ add.ternary.lines2 = function(point.1, point.2, col = "black", lwd = 1, lty = 1,
   lines(x = xs, y = ys, col = col, lwd = lwd, lty = lty, lend = lend)
 }
 
+add.ternary.arrow = function(point.1, point.2, length = .075, angle = 30, col = NULL, lwd = 1, lty = 1){
+  arrows(x0 = simplex.x(point.1), y0 = simplex.y(point.1), x1 = simplex.x(point.2), y1 = simplex.y(point.2), length = length, angle = angle, col = col, lwd = lwd, lty = lty)
+}
 
-### Ok now produce basic figures with guidelines and no labels and for both polls. 
+add.ternary.polygon = function(point.mat, border = NULL, border.lwd = 1, col = NA){
+  xs = apply(point.mat, 1, simplex.x)
+  ys = apply(point.mat, 1, simplex.y)
+  polygon(xs, ys, border = border, col = col, lwd = border.lwd)
+}
 
+#### commands for making the blank canvas and guidelines on it. #### 
 add.ternary.guidelines = function(maj_guidelines = T, plurality_guidelines = F, plurality_tie_lines = T, lwd = 1, lty = 3, col = rgb(.2, .2, .2, alpha = .8), overhang = 0){
   if(maj_guidelines){
     add.ternary.lines2(c(1/2, 1/2, 0), c(0, 1/2, 1/2), col = col, lwd = lwd, lty = lty, overhang = overhang)
@@ -77,34 +88,20 @@ add.ternary.guidelines = function(maj_guidelines = T, plurality_guidelines = F, 
   }
 }
 
-add.ternary.arrow = function(point.1, point.2, length = .075, angle = 30, col = NULL, lwd = 1, lty = 1){
-  arrows(x0 = simplex.x(point.1), y0 = simplex.y(point.1), x1 = simplex.x(point.2), y1 = simplex.y(point.2), length = length, angle = angle, col = col, lwd = lwd, lty = lty)
-}
-  
-
-
-add.ternary.polygon = function(point.mat, border = NULL, border.lwd = 1, col = NA){
-  xs = apply(point.mat, 1, simplex.x)
-  ys = apply(point.mat, 1, simplex.y)
-  polygon(xs, ys, border = border, col = col, lwd = border.lwd)
-}
-
-add.ternary.boundary = function(k = 0, lwd = 1){
-  bca.vertex = c(1 - k, 0, 0)
-  cba.vertex = c(0, 1 - k, 0)
-  bac.vertex = c(0, 0, 1-k)
-  bac.v.x = simplex.x(bac.vertex, k); bac.v.y = simplex.y(bac.vertex, k)
-  bca.v.x = simplex.x(bca.vertex, k); bca.v.y = simplex.y(bca.vertex, k)
-  cba.v.x = simplex.x(cba.vertex, k); cba.v.y = simplex.y(cba.vertex, k) 
+add.ternary.boundary = function(lwd = 1){
+  bca.vertex = c(1, 0, 0)
+  cba.vertex = c(0, 1, 0)
+  bac.vertex = c(0, 0, 1)
+  bac.v.x = simplex.x(bac.vertex); bac.v.y = simplex.y(bac.vertex)
+  bca.v.x = simplex.x(bca.vertex); bca.v.y = simplex.y(bca.vertex)
+  cba.v.x = simplex.x(cba.vertex); cba.v.y = simplex.y(cba.vertex) 
   
   lines(c(bac.v.x, cba.v.x), c(bac.v.y, cba.v.y), lwd = lwd)
   lines(c(bca.v.x, cba.v.x), c(bca.v.y, cba.v.y), lwd = lwd)
   lines(c(bac.v.x, bca.v.x), c(bac.v.y, bca.v.y), lwd = lwd)
 }
 
-
-library(colorspace)
-
+#### plurality ####
 
 plot.plurality.result = function(v.vec, from.v.vec = NULL, vertex.labels = c("A", "B", "C"), shading.cols = rainbow_hcl(3, alpha = .4), main = NULL, new = T, border = "black", fp.result.col = "black", fp.result.cex = 1, space = .1, add.fp.result = F){
   # the basic plot
@@ -161,7 +158,8 @@ plot.plurality.result = function(v.vec, from.v.vec = NULL, vertex.labels = c("A"
   
 }
 
-# was called plot.v.vec in original version
+#### AV ie RCV ie STV1 #### 
+
 plot.av.result = function(v.vec, from.v.vec = NULL, secondary.line.col = "gray", secondary.line.lwd = 2, vertex.labels = c("A", "B", "C"), shading.cols = rainbow_hcl(3, alpha = .4), main = NULL, new = T, border = "black", border.lwd = 1, fp.result.col = "black", fp.result.cex = 1, space = .1, clipped = F, add.fp.result = F, identify.elimination.regions = F, identify.majority.thresholds = F){
   # v.vec is in AB, AC, BA, BC, CA, CB, AX, BX, CX order 
   if(length(v.vec == 6)){
@@ -198,7 +196,6 @@ plot.av.result = function(v.vec, from.v.vec = NULL, secondary.line.col = "gray",
     
   }
   
-  
   # the first preference shares
   fp.vec = c(sum(v.vec[c(1,2,7)]), sum(v.vec[c(3,4,8)]), sum(v.vec[c(5,6,9)]))
   
@@ -207,7 +204,6 @@ plot.av.result = function(v.vec, from.v.vec = NULL, secondary.line.col = "gray",
     plot.av.result(v.vec = from.v.vec, new = F, shading.cols = c(NULL, NULL, NULL), border = "gray", fp.result.col = "black", fp.result.cex = .5)
     add.ternary.lines(fp.vec[c(1,3,2)], from.fp.vec[c(1,3,2)], col = "black")		
   }
-  
   
   # second-round pivotal events 
   mAB = (v.vec[1] - v.vec[2])/fp.vec[1]
@@ -316,6 +312,7 @@ plot.av.result = function(v.vec, from.v.vec = NULL, secondary.line.col = "gray",
   
 }
 
+#### condorcet #### 
 plot.condorcet.result = function(v.vec, from.v.vec = NULL, secondary.line.col = "gray", secondary.line.lwd = 2, vertex.labels = c("A", "B", "C"), shading.cols = rainbow_hcl(3, alpha = .4), main = NULL, new = T, border = "black", fp.result.col = "black", fp.result.cex = 1, space = .1, clipped = F, clipped.xs = c(1/5, 3/5), clipped.ys = c(1/4, 1/2), add.fp.result = F, plot.pairwise.lines = F, in.cycle = "empty", kemeny.point = F){
   
   # basic plot
@@ -397,9 +394,6 @@ plot.condorcet.result = function(v.vec, from.v.vec = NULL, secondary.line.col = 
   second_inner_intersection_mat = rbind(AC.BC.int, AB.BC.int, AB.BC.int)
   
   if(!forward.cycle){
-#    Z = first_edge_mat
-#    first_edge_mat = second_edge_mat
-#    second_edge_mat = Z
     first_inner_intersection_mat = rbind(AB.BC.int, AB.BC.int, AB.AC.int)
     second_inner_intersection_mat = rbind(AB.AC.int, AC.BC.int, AC.BC.int)
   }
@@ -448,15 +442,7 @@ plot.condorcet.result = function(v.vec, from.v.vec = NULL, secondary.line.col = 
   for(j in 1:3){
     add.ternary.polygon(rbind(vertex_mat[j,], first_edge_mat[j,], first_inner_intersection_mat[j, ], k_mat[j,], second_inner_intersection_mat[j,], second_edge_mat[j,], vertex_mat[j,]), col = these_shading_cols[j], border = border)
   }
-  # old approach 
-  # add.ternary.polygon(rbind(A.vertex, AC.tie.B.0, AB.AC.int, AB.tie.C.0, A.vertex), col = shading.cols[1], border = border)
-  # add.ternary.polygon(rbind(B.vertex, AB.tie.C.0, AB.BC.int, BC.tie.A.0, B.vertex), col = shading.cols[2], border = border)
-  # add.ternary.polygon(rbind(C.vertex, AC.tie.B.0, AC.BC.int, BC.tie.A.0, C.vertex), col = shading.cols[3], border = border)
-  
-  # if(!is.null(fill.for.cycle)){
-  #   add.ternary.polygon(rbind(AC.BC.int, AB.AC.int, AB.BC.int, AC.BC.int), col = fill.for.cycle, border = F)
-  # }
-  
+
   # FP result
   if(add.fp.result){
     add.ternary.point(fp.vec[c(1,3,2)], pch = 19, cex = fp.result.cex, col = fp.result.col)
@@ -519,8 +505,7 @@ a.beats.b.at = function(point, v_vec){
   point[1] + point[2]*(v_vec[5]/sum(v_vec[c(5,6,9)])) > .5
 }
 
-
-# positional system 
+#### Borda and other positional systems ####   
 
 from_point_in_xyz_form = function(p_vec, s){
   # we are calculating a tie between x and y
@@ -603,50 +588,6 @@ ternary_point_mats_from_p_vec_and_s = function(p_vec, s){
   list(ab_point_mat, ac_point_mat, bc_point_mat)
 }
 
-# this is incomplete -- just handling easy special cases for paper
-plot.bucklin.result = function(v.vec, secondary.line.col = "gray", secondary.line.lwd = 2, vertex.labels = c("A", "B", "C"), shading.cols = rainbow_hcl(3, alpha = .4), main = NULL, new = T, border = "black", fp.result.col = "black", fp.result.cex = 1, space = .1, clipped = F, add.fp.result = F){
-  
-  out.list = plot.positional.result(v.vec, positional.s = 1, plot = F)
-  tpms = out.list[["tpms"]]
-  intersection.point = out.list[["intersection.point"]]
-  
-  xs = c(0, 1) + c(-space, space); ys = c(0, sqrt(3/4)) + sqrt(3/4)*c(-space, space)
-  plot(xs, ys, type = "n", xlab = "", ylab = "", axes = F, main = main)
-  add.ternary.boundary()
-  
-  # vertices
-  A.vertex = c(1,0,0)
-  B.vertex = c(0,0,1)
-  C.vertex = c(0,1,0)
-  
-  # winning areas 
-  if(min(intersection.point) >= 0 & max(intersection.point) < 1/2){
-    # then it's just a normal antiplurality result 
-    add.ternary.polygon(rbind(A.vertex, tpms[[2]][1,], intersection.point, tpms[[1]][1,], A.vertex), col = shading.cols[1], border = border)
-    add.ternary.polygon(rbind(B.vertex, tpms[[1]][1,], intersection.point, tpms[[3]][1,], B.vertex), col = shading.cols[2], border = border)
-    add.ternary.polygon(rbind(C.vertex, tpms[[2]][1,], intersection.point, tpms[[3]][1,], C.vertex), col = shading.cols[3], border = border)
-  }else if(intersection.point[3] < 0 & min(tpms[[1]][,1]) > 1/2 & min(tpms[[3]][,2]) > 1/2){
-    # B wins whenever no one else wins a majorty     
-    add.ternary.polygon(rbind(A.vertex, c(1/2, 1/2, 0), c(1/2, 0, 1/2), A.vertex), col = shading.cols[1], border = border)
-    add.ternary.polygon(rbind(B.vertex, c(1/2, 0, 1/2), c(1/2, 1/2, 0), c(0, 1/2, 1/2), B.vertex), col = shading.cols[2], border = border)
-    add.ternary.polygon(rbind(C.vertex, c(1/2, 1/2, 0), c(0, 1/2, 1/2), C.vertex), col = shading.cols[3], border = border)
-  }
-  
-  if(add.fp.result){
-    fp.vec = c(sum(v.vec[c(1,2,7)]), sum(v.vec[c(3,4,8)]), sum(v.vec[c(5,6,9)]))
-    add.ternary.point(fp.vec[c(1,3,2)], pch = 19, cex = fp.result.cex, col = fp.result.col)
-  }
-  
-  if(new){
-    label.offset = .05
-    add.ternary.text(c(1,0,0), vertex.labels[1], x.offset = -label.offset, y.offset = -sqrt(3/4)*label.offset)
-    add.ternary.text(c(0, 0,1), vertex.labels[2], x.offset = 0, y.offset = sqrt(3/4)*label.offset)
-    add.ternary.text(c(0,1,0), vertex.labels[3], x.offset = label.offset, y.offset = -sqrt(3/4)*label.offset)
-  }
-  
-
-  out.list
-}
 
 plot.positional.result = function(v.vec, positional.s = .5, secondary.line.col = "gray", secondary.line.lwd = 2, vertex.labels = c("A", "B", "C"), shading.cols = rainbow_hcl(3, alpha = .4), main = NULL, new = T, border = "black", fp.result.col = "black", fp.result.cex = 1, space = .1, clipped = F, add.fp.result = F, plot.pairwise.lines = F, highlight.positional.tie.lines = F, highlight.color = rgb(1,0,0,alpha = .5), highlight.lwd = 4, highlight.lend = 0, plot = T){
   
@@ -743,7 +684,56 @@ plot.positional.result = function(v.vec, positional.s = .5, secondary.line.col =
 }
 
 
-# side-by-side comparison 
+#### bucklin ####
+
+# this is incomplete -- just handling easy special cases for paper
+plot.bucklin.result = function(v.vec, secondary.line.col = "gray", secondary.line.lwd = 2, vertex.labels = c("A", "B", "C"), shading.cols = rainbow_hcl(3, alpha = .4), main = NULL, new = T, border = "black", fp.result.col = "black", fp.result.cex = 1, space = .1, clipped = F, add.fp.result = F){
+  
+  out.list = plot.positional.result(v.vec, positional.s = 1, plot = F)
+  tpms = out.list[["tpms"]]
+  intersection.point = out.list[["intersection.point"]]
+  
+  xs = c(0, 1) + c(-space, space); ys = c(0, sqrt(3/4)) + sqrt(3/4)*c(-space, space)
+  plot(xs, ys, type = "n", xlab = "", ylab = "", axes = F, main = main)
+  add.ternary.boundary()
+  
+  # vertices
+  A.vertex = c(1,0,0)
+  B.vertex = c(0,0,1)
+  C.vertex = c(0,1,0)
+  
+  # winning areas 
+  if(min(intersection.point) >= 0 & max(intersection.point) < 1/2){
+    # then it's just a normal antiplurality result 
+    add.ternary.polygon(rbind(A.vertex, tpms[[2]][1,], intersection.point, tpms[[1]][1,], A.vertex), col = shading.cols[1], border = border)
+    add.ternary.polygon(rbind(B.vertex, tpms[[1]][1,], intersection.point, tpms[[3]][1,], B.vertex), col = shading.cols[2], border = border)
+    add.ternary.polygon(rbind(C.vertex, tpms[[2]][1,], intersection.point, tpms[[3]][1,], C.vertex), col = shading.cols[3], border = border)
+  }else if(intersection.point[3] < 0 & min(tpms[[1]][,1]) > 1/2 & min(tpms[[3]][,2]) > 1/2){
+    # B wins whenever no one else wins a majorty     
+    add.ternary.polygon(rbind(A.vertex, c(1/2, 1/2, 0), c(1/2, 0, 1/2), A.vertex), col = shading.cols[1], border = border)
+    add.ternary.polygon(rbind(B.vertex, c(1/2, 0, 1/2), c(1/2, 1/2, 0), c(0, 1/2, 1/2), B.vertex), col = shading.cols[2], border = border)
+    add.ternary.polygon(rbind(C.vertex, c(1/2, 1/2, 0), c(0, 1/2, 1/2), C.vertex), col = shading.cols[3], border = border)
+  }
+  
+  if(add.fp.result){
+    fp.vec = c(sum(v.vec[c(1,2,7)]), sum(v.vec[c(3,4,8)]), sum(v.vec[c(5,6,9)]))
+    add.ternary.point(fp.vec[c(1,3,2)], pch = 19, cex = fp.result.cex, col = fp.result.col)
+  }
+  
+  if(new){
+    label.offset = .05
+    add.ternary.text(c(1,0,0), vertex.labels[1], x.offset = -label.offset, y.offset = -sqrt(3/4)*label.offset)
+    add.ternary.text(c(0, 0,1), vertex.labels[2], x.offset = 0, y.offset = sqrt(3/4)*label.offset)
+    add.ternary.text(c(0,1,0), vertex.labels[3], x.offset = label.offset, y.offset = -sqrt(3/4)*label.offset)
+  }
+  
+  
+  out.list
+}
+
+
+
+# for side-by-side comparison 
 #basic.v.vec = c(20, 6, 13,10, 4, 21, 2,4,3)
 #v.vec = basic.v.vec/sum(basic.v.vec)
 #compare_three_systems(v.vec)
@@ -754,11 +744,3 @@ compare_three_systems = function(v.vec){
   plot.av.result(v.vec, main = "AV")
   plot.condorcet.result(v.vec, main = "Condorcet")
 }
-
-
-## Next steps: 
-# shiny app (for these three or more -- text entries for counts, or arrows?)
-# Borda count (or positional methods in general)
-# overlays to show where they disagree
-
-# writeup: 
