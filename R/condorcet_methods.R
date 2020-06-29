@@ -1,13 +1,39 @@
-### condorcet 
-
-plot.condorcet.result = function(v.vec, from.v.vec = NULL, secondary.line.col = "gray", secondary.line.lwd = 2, vertex.labels = c("A", "B", "C"), shading.cols = rainbow_hcl(3, alpha = .4), main = NULL, new = T, border = "black", fp.result.col = "black", fp.result.cex = 1, space = .1, clipped = F, clipped.xs = c(1/5, 3/5), clipped.ys = c(1/4, 1/2), add.fp.result = F, plot.pairwise.lines = F, in.cycle = "empty", kemeny.point = F){
+#' Plot result of Condorcet election 
+#'
+#' Given ballot counts, represent the result of a three-candidate 
+#' Condorcet election on a ternary diagram. The dot shows the proportion of top ranks each candidate 
+#' received; the division of the triangle into win regions shows 
+#' the proportion of top ranks each candidate would need to win the election
+#' (given the pattern of lower rankings).
+#' 
+#' A Condorcet method is one where voters rank candidates and, if there is a candidate who defeats all other candidates in pairwise competition, that candidate is the winner. (A defeats B in pairwise competition is A is ranked higher than B on a majority of ballots.) There may not be such a candidate: there could be a "Condorcet cycle" in which e.g. A defeats B, B defeats C, but C defeats A. There are several methods for choosing a winner in the event of such a cycle. For now the user can leave the cyclic region empty, fill it according to the Kemeny-Young method (the winner is the candidate with the smallest losing margin), or specify a candidate who wins in that region. 
+#' 
+#' @inheritParams plot.av.result 
+#' @param in.cycle How should we fill in the cyclic region? Specify "empty", "kemeny", "A" (lower left candidate), "B" (top candidate), or "C" (lower right candidate).
+#' @param draw.majority.tie.lines Draw majority tie lines for each pair of candidates.
+#' @examples 
+#' v.vec <- c(25, 6, 6,12, 15, 10)
+#' plot.condorcet.result(v.vec, in.cycle = "empty")
+#' plot.condorcet.result(v.vec, in.cycle = "kemeny")
+#' plot.condorcet.result(v.vec, in.cycle = "A")
+#' plot.condorcet.result(v.vec, in.cycle = "A", draw.majority.tie.lines = T)
+#' @export
+plot.condorcet.result = function(v.vec, from.v.vec = NULL, add.fp.result = T, fp.result.col = "black", fp.result.cex = 1, secondary.line.col = "gray", secondary.line.lwd = 2, vertex.labels = c("A", "B", "C"), shading.cols = c("#E495A566", "#86B87566", "#7DB0DD66"), main = NULL, new = T, border = "black", space = .1, clipped = F, clipped.x.range = c(1/4, 3/4), clipped.y.range = c(0, 1/2), draw.majority.tie.lines = F, in.cycle = "empty"){
+  
+  # fill out v.vec
+  if(length(v.vec == 6)){
+    v.vec = c(v.vec, 0, 0, 0)
+  }
+  
+  # normalize v.vec 
+  v.vec = v.vec/sum(v.vec)
   
   # basic plot
   if(new){
     xs = c(0, 1) + c(-space, space); ys = c(0, sqrt(3/4)) + sqrt(3/4)*c(-space, space)
     if(clipped){
-      xs = clipped.xs + c(-space/2, space/2)  # c(1/4, 3/4)
-      ys = clipped.ys + sqrt(3/4)*c(-space/2, space/2)  # c(0, sqrt(3/4)/2) 
+      xs = clipped.x.range + c(-space/2, space/2)  # c(1/4, 3/4)
+      ys = clipped.y.range + sqrt(3/4)*c(-space/2, space/2)  # c(0, sqrt(3/4)/2) 
     }
     plot(xs, ys, type = "n", xlab = "", ylab = "", axes = F, main = main)
     add.ternary.boundary()
@@ -31,7 +57,7 @@ plot.condorcet.result = function(v.vec, from.v.vec = NULL, secondary.line.col = 
   B.vertex = c(0,0,1)
   C.vertex = c(0,1,0)
   
-  if(plot.pairwise.lines){
+  if(draw.majority.tie.lines){
     # AB majority tie line 
     ab.point = c(0, 1 - mAB/(1 + mAB), mAB/(1 + mAB))
     if(mAB < 0){
@@ -73,7 +99,7 @@ plot.condorcet.result = function(v.vec, from.v.vec = NULL, secondary.line.col = 
   
   # assemble points for the polygons we want to draw 
   kp = get_kemeny_point(v.vec)
-  forward.cycle = a.beats.b.at(kp, v.vec) # logical.
+  forward.cycle = a.beats.b.at(v.vec, kp) # logical.
   vertex_mat = rbind(A.vertex, B.vertex, C.vertex)
   first_edge_mat = rbind(AB.tie.C.0, AB.tie.C.0, AC.tie.B.0)
   second_edge_mat = rbind(AC.tie.B.0, BC.tie.A.0, BC.tie.A.0)
@@ -115,8 +141,7 @@ plot.condorcet.result = function(v.vec, from.v.vec = NULL, secondary.line.col = 
     k_mat = rbind(apply(rbind(AB.AC.int, AC.BC.int), 2, mean),
                   apply(rbind(AB.AC.int, AB.BC.int), 2, mean),
                   apply(rbind(AC.BC.int, AB.BC.int), 2, mean))
-  }else{cat("Need to specify what to do in cycle -- empty?"); 1/0} # else if(in.cycle == "IRV"){
-  # would be nice to do this, but not necessary for now. 
+  }else{cat("Need to specify what to do in cycle -- empty?"); 1/0} 
   
   # plan for doing central triangle: there is always a point k for each. and the order of points to draw is always (your vertex, edge intersection, majority tie line intersection (MTLI) 1, your.k, MTLI 2, edge intersection, your vertex). the order of the MTLIs depends on the direction of the cycle. [how do I determine that?]  
   # if kemeny, k is the kemeny point for all. the order of vertices AC.tie.B.0 vs AB.tie.C.0 depends on the direction of the cycle
@@ -145,49 +170,3 @@ plot.condorcet.result = function(v.vec, from.v.vec = NULL, secondary.line.col = 
   cycle_mat
 }
 
-get_kemeny_point = function(v_vec){
-  
-  v_a = sum(v_vec[c(1:2, 7)])
-  v_b = sum(v_vec[c(3:4, 8)])
-  v_c = sum(v_vec[c(5:6, 9)])
-  pac = v_vec[2]/v_a
-  pab = v_vec[1]/v_a
-  pba = v_vec[3]/v_b
-  pbc = v_vec[4]/v_b
-  pca = v_vec[5]/v_c
-  pcb = v_vec[6]/v_c
-  
-  # intercept and slope of the ab.bc kemeny line
-  I = (-1 + pcb - pca)/((pac - pab) + (pcb - pca))
-  M = (3 - pcb + pca)/((pac - pab) + (pcb - pca))
-  # equation: v_a = I + v_b M
-  
-  # to draw: 
-  # v_a_star = (I+M)/(1+M)
-  # point_1 = c(v_a_star, 0, 1 - v_a_star)
-  # v_b_star = -I/M
-  # point_2 = c(0, 1 - v_b_star, v_b_star)
-  
-  # attributes of AC.AB Kemeny tie line 
-  X = (3 + pcb - pca)
-  Y = (3 + pbc - pba)
-  # equation: Xv_c + Y v_b = 2
-  
-  # to plot it: 
-  # if v_c = 0: 
-  # v_b_star = 2/Y
-  # point_1_a = c(1 - v_b_star, 0, v_b_star)
-  # if v_v = 0
-  # v_c_star = 2/X
-  # point_2_a = c(1 - v_c_star, v_c_star, 0)
-  
-  # point of intersection 
-  v_b_star = ((X-2)/X - I)/(M - (Y-X)/X)
-  v_a_star = I + v_b_star*M
-  c(v_a_star, 1 - v_a_star - v_b_star, v_b_star)
-}
-
-a.beats.b.at = function(point, v_vec){
-  # Does a beat b at the given fp point, given the pattern of preferences in v_vec? If so (and if this is a cycle), this is a forward cycle.
-  point[1] + point[2]*(v_vec[5]/sum(v_vec[c(5,6,9)])) > .5
-}

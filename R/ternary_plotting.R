@@ -1,19 +1,19 @@
 ### ternary points lines etc 
 
-add.ternary.point = function(point, col = "black", pch = 19, cex = 1, x.offset = 0, y.offset = 0){
-  points(x = simplex.x(point) + x.offset, y = simplex.y(point) + y.offset, pch = pch, col = col, cex = cex)
+add.ternary.point = function(point, x.offset = 0, y.offset = 0, ...){
+  points(x = simplex.x(point) + x.offset, y = simplex.y(point) + y.offset, ...)
 }
 
-add.ternary.text = function(point, labels, col = "black", cex = 1, x.offset = 0, y.offset = 0, pos = NULL, offset = NULL){
-  text(x = simplex.x(point) + x.offset, y = simplex.y(point) + y.offset, labels = labels, col = col, cex = cex, pos = pos, offset = offset)
+add.ternary.text = function(point, labels, x.offset = 0, y.offset = 0, ...){
+  text(x = simplex.x(point) + x.offset, y = simplex.y(point) + y.offset, ...)
 }
 
-add.ternary.lines = function(point.1, point.2, col = "black", lwd = 1, lty = 1, x.adj = c(0,0), y.adj = c(0, 0), lend = 0){
-  lines(x = c(simplex.x(point.1) + x.adj[1], simplex.x(point.2) + x.adj[2]), y = c(simplex.y(point.1) + y.adj[1], simplex.y(point.2) + y.adj[2]), col = col, lwd = lwd, lty = lty, lend = lend)
+add.ternary.lines = function(point.1, point.2, x.adj = c(0,0), y.adj = c(0, 0), ...){
+  lines(x = c(simplex.x(point.1) + x.adj[1], simplex.x(point.2) + x.adj[2]), y = c(simplex.y(point.1) + y.adj[1], simplex.y(point.2) + y.adj[2]), ...)
 }
 
 # this version allows for an overhang. useful for making diagrams in paper. could be cleaned up of course. 
-add.ternary.lines2 = function(point.1, point.2, col = "black", lwd = 1, lty = 1, lend = 0, overhang = 0){
+add.ternary.lines2 = function(point.1, point.2, overhang = 0, ...){
   xs = c(simplex.x(point.1), simplex.x(point.2)) # was simplex.x/y2
   ys = c(simplex.y(point.1), simplex.y(point.2)) # was simplex.x/y2
   if(overhang > 0){
@@ -30,11 +30,11 @@ add.ternary.lines2 = function(point.1, point.2, col = "black", lwd = 1, lty = 1,
       ys = ys + length.ratio*delta.y*c(-1,1)
     }
   }
-  lines(x = xs, y = ys, col = col, lwd = lwd, lty = lty, lend = lend)
+  lines(x = xs, y = ys, ...)
 }
 
-add.ternary.arrow = function(point.1, point.2, length = .075, angle = 30, col = NULL, lwd = 1, lty = 1){
-  arrows(x0 = simplex.x(point.1), y0 = simplex.y(point.1), x1 = simplex.x(point.2), y1 = simplex.y(point.2), length = length, angle = angle, col = col, lwd = lwd, lty = lty)
+add.ternary.arrow = function(point.1, point.2, length = .075, angle = 30, ...){
+  arrows(x0 = simplex.x(point.1), y0 = simplex.y(point.1), x1 = simplex.x(point.2), y1 = simplex.y(point.2), length = length, angle = angle, ...)
 }
 
 add.ternary.polygon = function(point.mat, border = NULL, border.lwd = 1, col = NA){

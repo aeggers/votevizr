@@ -1,7 +1,7 @@
 #' Plot result of RCV election
 #' 
-#' Given ballot counts, represent the election result
-#' on ternary diagram.
+#' Given ballot counts, represent the result of a ranked-choice voting 
+#' election (aka alternative vote, preferential voting, instant-runoff voting, STV with one winner) on ternary diagram.
 #' 
 #' The dot shows the proportion of top ranks each candidate 
 #' received; the division of the triangle into win regions shows 
@@ -28,8 +28,8 @@
 #' @param clipped Allows to focus on one part of figure.
 #' @param clipped.x.range Vector of range of x to show (like xlim), in standard coordinates. 
 #' @param clipped.y.range Vector of range of y to show (like ylim), in standard coordinates. 
-#' @param identify.elimination.regions Draws lines to show first preference shares where each candidate would be eliminated.
-#' @param identify.majority.thresholds Draws lines to show where each candidate would win a majority of first preference shares. 
+#' @param draw.elimination.regions Draws lines to show first preference shares where each candidate would be eliminated.
+#' @param draw.majority.thresholds Draws lines to show where each candidate would win a majority of first preference shares. 
 #' @return Beyond making the plot, the funtion returns a list of three points (in standard coordinates), each of
 #'     which is an interior corner of a first-preference win region 
 #'     in the diagram, where a majority tie line intersects with a 
@@ -42,12 +42,18 @@
 #' plot.av.result(c(20, 3, 3,6, 7, 19))
 #' plot.av.result(c(20, 3, 3,6, 7, 19, 4,6,2))
 #' @export
-plot.av.result = function(v.vec, vertex.labels = c("A", "B", "C"), add.fp.result = T, fp.result.col = "black", fp.result.cex = 1, shading.cols = c("#E495A566", "#86B87566", "#7DB0DD66"), from.v.vec = NULL, secondary.line.col = "gray", secondary.line.lwd = 2, main = NULL, new = T, border = "black", border.lwd = 1,  space = .1, clipped = F, clipped.x.range = c(1/4, 3/4), clipped.y.range = c(0, 1/2), identify.elimination.regions = F, identify.majority.thresholds = F){
+plot.av.result = function(v.vec, vertex.labels = c("A", "B", "C"), add.fp.result = T, fp.result.col = "black", fp.result.cex = 1, shading.cols = c("#E495A566", "#86B87566", "#7DB0DD66"), from.v.vec = NULL, secondary.line.col = "gray", secondary.line.lwd = 2, main = NULL, new = T, border = "black", border.lwd = 1,  space = .1, clipped = F, clipped.x.range = c(1/4, 3/4), clipped.y.range = c(0, 1/2), draw.elimination.regions = F, draw.majority.thresholds = F){
+  
   # v.vec is in AB, AC, BA, BC, CA, CB, AX, BX, CX order 
+  # A is bottom left, B is top, C is bottom right 
+  
+  # fill out v.vec
   if(length(v.vec == 6)){
     v.vec = c(v.vec, 0, 0, 0)
   }
-  # B is the top vertex
+  
+  # normalize v.vec 
+  v.vec = v.vec/sum(v.vec)
   
   # the basic plot
   if(new){
@@ -60,7 +66,7 @@ plot.av.result = function(v.vec, vertex.labels = c("A", "B", "C"), add.fp.result
     add.ternary.boundary()
     
     # majority thresholds
-    if(identify.majority.thresholds){
+    if(draw.majority.thresholds){
       add.ternary.lines(c(1/2, 1/2, 0), c(0, 1/2, 1/2), col = secondary.line.col, lwd = secondary.line.lwd, lty = 3)
       add.ternary.lines(c(0, 1/2, 1/2), c(1/2, 0, 1/2), col = secondary.line.col, lwd = secondary.line.lwd, lty = 3)
       add.ternary.lines(c(1/2, 0, 1/2), c(1/2, 1/2, 0), col = secondary.line.col, lwd = secondary.line.lwd, lty = 3)
@@ -70,7 +76,7 @@ plot.av.result = function(v.vec, vertex.labels = c("A", "B", "C"), add.fp.result
     }
     
     # first-round pivotal events
-    if(identify.elimination.regions){
+    if(draw.elimination.regions){
       add.ternary.lines(c(1, 0, 0), c(1/3, 1/3, 1/3), col = secondary.line.col, lwd = secondary.line.lwd, lty = 2)
       add.ternary.lines(c(0, 1, 0), c(1/3, 1/3, 1/3), col = secondary.line.col, lwd = secondary.line.lwd, lty = 2)
       add.ternary.lines(c(0, 0, 1), c(1/3, 1/3, 1/3), col = secondary.line.col, lwd = secondary.line.lwd, lty = 2)		

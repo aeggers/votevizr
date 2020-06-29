@@ -22,8 +22,8 @@ plot.av.result(
   clipped = F,
   clipped.x.range = c(1/4, 3/4),
   clipped.y.range = c(0, 1/2),
-  identify.elimination.regions = F,
-  identify.majority.thresholds = F
+  draw.elimination.regions = F,
+  draw.majority.thresholds = F
 )
 }
 \arguments{
@@ -64,28 +64,28 @@ of ballots ranking the candidates (AB, AC, BA, BC, CA, CB, A, B, C); if the vect
 
 \item{clipped.y.range}{Vector of range of y to show (like ylim), in standard coordinates.}
 
-\item{identify.elimination.regions}{Draws lines to show first preference shares where each candidate would be eliminated.}
+\item{draw.elimination.regions}{Draws lines to show first preference shares where each candidate would be eliminated.}
 
-\item{identify.majority.thresholds}{Draws lines to show where each candidate would win a majority of first preference shares.}
+\item{draw.majority.thresholds}{Draws lines to show where each candidate would win a majority of first preference shares.}
 }
 \value{
-A list of three points (in standard coordinates), each of
+Beyond making the plot, the funtion returns a list of three points (in standard coordinates), each of
     which is an interior corner of a first-preference win region 
-    in the plot, where a majority tie line intersects with a 
+    in the diagram, where a majority tie line intersects with a 
     plurality tie line. For example, \code{AB.tie.C.max} is the
     intersection of the AB majority tie line with either the BC
     plurality tie line or the AC majority tie line, depending 
     on the pattern of second preferences. These points can 
-    be userful for augmenting the plot.
+    be useful for augmenting the plot.
 }
 \description{
-Given ballot counts, represent the election result
-on ternary diagram.
+Given ballot counts, represent the result of a ranked-choice voting 
+election (aka alternative vote, preferential voting, instant-runoff voting, STV with one winner) on ternary diagram.
 }
 \details{
 The dot shows the proportion of top ranks each candidate 
 received; the division of the triangle into win regions shows 
-the proportion of top ranks each candidate would need to win
+the proportion of top ranks each candidate would need to win the election
 (given the pattern of lower rankings).
 }
 \examples{
