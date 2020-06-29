@@ -14,8 +14,8 @@ add.ternary.lines = function(point.1, point.2, col = "black", lwd = 1, lty = 1, 
 
 # this version allows for an overhang. useful for making diagrams in paper. could be cleaned up of course. 
 add.ternary.lines2 = function(point.1, point.2, col = "black", lwd = 1, lty = 1, lend = 0, overhang = 0){
-  xs = c(simplex.x2(point.1), simplex.x2(point.2))
-  ys = c(simplex.y2(point.1), simplex.y2(point.2))
+  xs = c(simplex.x(point.1), simplex.x(point.2)) # was simplex.x/y2
+  ys = c(simplex.y(point.1), simplex.y(point.2)) # was simplex.x/y2
   if(overhang > 0){
     if(xs[1] == xs[2]){
       ys = sort(ys) + c(-overhang, overhang)

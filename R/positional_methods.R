@@ -81,8 +81,19 @@ ternary_point_mats_from_p_vec_and_s = function(p_vec, s){
   list(ab_point_mat, ac_point_mat, bc_point_mat)
 }
 
+plot.plurality.result = function(v.vec, ...){
+  plot.positional.result(v.vec, positional.s = 0, ...)
+}
 
-plot.positional.result = function(v.vec, positional.s = .5, secondary.line.col = "gray", secondary.line.lwd = 2, vertex.labels = c("A", "B", "C"), shading.cols = rainbow_hcl(3, alpha = .4), main = NULL, new = T, border = "black", fp.result.col = "black", fp.result.cex = 1, space = .1, clipped = F, add.fp.result = F, plot.pairwise.lines = F, highlight.positional.tie.lines = F, highlight.color = rgb(1,0,0,alpha = .5), highlight.lwd = 4, highlight.lend = 0, plot = T){
+plot.borda.result = function(v.vec, ...){
+  plot.positional.result(v.vec, positional.s = .5, ...)
+}
+
+plot.antiplurality.result = function(v.vec, ...){
+  plot.positional.result(v.vec, positional.s = 1, ...)
+}
+
+plot.positional.result = function(v.vec, positional.s = .5, secondary.line.col = "gray", secondary.line.lwd = 2, vertex.labels = c("A", "B", "C"), shading.cols = c("#E495A566", "#86B87566", "#7DB0DD66"), main = NULL, new = T, border = "black", fp.result.col = "black", fp.result.cex = 1, space = .1, clipped = F, add.fp.result = F, plot.pairwise.lines = F, highlight.positional.tie.lines = F, highlight.color = rgb(1,0,0,alpha = .5), highlight.lwd = 4, highlight.lend = 0, plot = T){
   
   # s is the value given to the second option on a ballot. 0 is plurality, 1/2 is Borda, 1 is anti-plurality.
   
