@@ -1,6 +1,6 @@
 # Diagrams for ordinal voting systems
 
-This project allows users to make diagrams representing election results in various ordinal voting systems: 
+votevizr allows users to make diagrams representing election results in various ordinal voting systems: 
 
 - any positional method (three candidate elections only)
    + plurality
