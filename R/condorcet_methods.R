@@ -1,6 +1,6 @@
 #' Plot result of Condorcet election 
 #'
-#' Given ballot counts, represent the result of a three-candidate 
+#' Given ballot counts/shares, represent the result of a three-candidate 
 #' Condorcet election on a ternary diagram. The dot shows the proportion of top ranks each candidate 
 #' received; the division of the triangle into win regions shows 
 #' the proportion of top ranks each candidate would need to win the election
@@ -8,33 +8,23 @@
 #' 
 #' A Condorcet method is one where voters rank candidates and, if there is a candidate who defeats all other candidates in pairwise competition, that candidate is the winner. (A defeats B in pairwise competition is A is ranked higher than B on a majority of ballots.) There may not be such a candidate: there could be a "Condorcet cycle" in which e.g. A defeats B, B defeats C, but C defeats A. There are several methods for choosing a winner in the event of such a cycle. For now the user can leave the cyclic region empty, fill it according to the Kemeny-Young method (the winner is the candidate with the smallest losing margin), or specify a candidate who wins in that region. 
 #' 
-#' @inheritParams plot.av.result 
+#' @inheritParams plot_rcv_result 
 #' @param in.cycle How should we fill in the cyclic region? Specify "empty", "kemeny", "A" (lower left candidate), "B" (top candidate), or "C" (lower right candidate).
 #' @param draw.majority.tie.lines Draw majority tie lines for each pair of candidates.
 #' @examples 
-#' v.vec <- c(25, 6, 6,12, 15, 10)
-#' plot.condorcet.result(v.vec, in.cycle = "empty")
-#' plot.condorcet.result(v.vec, in.cycle = "kemeny")
-#' plot.condorcet.result(v.vec, in.cycle = "A")
-#' plot.condorcet.result(v.vec, in.cycle = "A", draw.majority.tie.lines = T)
+#' result <- c(25, 6, 6,12, 15, 10)
+#' plot_condorcet_result(result, in.cycle = "empty")
+#' plot_condorcet_result(result, in.cycle = "kemeny")
+#' plot_condorcet_result(result, in.cycle = "A")
+#' plot_condorcet_result(result, in.cycle = "A", draw.majority.tie.lines = T)
 #' @export
-plot.condorcet.result = function(v.vec, from.v.vec = NULL, add.fp.result = T, fp.result.col = "black", fp.result.cex = 1, secondary.line.col = "gray", secondary.line.lwd = 2, vertex.labels = c("A", "B", "C"), shading.cols = c("#E495A566", "#86B87566", "#7DB0DD66"), main = NULL, new = T, border = "black", space = .1, clipped = F, clipped.x.range = c(1/4, 3/4), clipped.y.range = c(0, 1/2), draw.majority.tie.lines = F, in.cycle = "empty"){
+plot_condorcet_result = function(result, add.fp.result = T, fp.result.col = "black", fp.result.cex = 1, secondary.line.col = "gray", secondary.line.lwd = 2, vertex.labels = c("A", "B", "C"), shading.cols = c("#E495A566", "#86B87566", "#7DB0DD66"), main = NULL, new = T, border = "black", space = .1, xlim = c(0,1), ylim = c(0, sqrt(3/4)), draw.majority.tie.lines = F, in.cycle = "empty"){
   
-  # fill out v.vec
-  if(length(v.vec == 6)){
-    v.vec = c(v.vec, 0, 0, 0)
-  }
-  
-  # normalize v.vec 
-  v.vec = v.vec/sum(v.vec)
+  v.vec <- convert_result_to_vector_of_vote_shares(result)
   
   # basic plot
   if(new){
-    xs = c(0, 1) + c(-space, space); ys = c(0, sqrt(3/4)) + sqrt(3/4)*c(-space, space)
-    if(clipped){
-      xs = clipped.x.range + c(-space/2, space/2)  # c(1/4, 3/4)
-      ys = clipped.y.range + sqrt(3/4)*c(-space/2, space/2)  # c(0, sqrt(3/4)/2) 
-    }
+    xs = xlim + c(-space, space); ys = ylim + sqrt(3/4)*c(-space, space)
     plot(xs, ys, type = "n", xlab = "", ylab = "", axes = F, main = main)
     add.ternary.boundary()
   }

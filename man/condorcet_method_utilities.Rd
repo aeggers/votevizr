@@ -11,14 +11,14 @@ get_kemeny_point(v.vec)
 a.beats.b.at(v.vec, point)
 }
 \arguments{
-\item{v.vec}{A vector of ballot counts or shares of length 9. If candidates 
+\item{v.vec}{A vector of ballot counts or shares of length 9. If candidates
 are A, B, and C, then the components indicate the count/share
-of ballots ranking the candidates (AB, AC, BA, BC, CA, CB, A, B, C).}
+of ballots ranking the candidates (AB, AC, BA, BC, CA, CB, AX, BX, CX).}
 
 \item{point}{A length-three vector of shares.}
 }
 \value{
-\code{get_kemeny_point()} returns the vector of first-preference location (in standard 3D coordinates) such that, given the pattern of lower rankings, there would be a three-way tie according to the Kemeny-Young method. That is, there is a Condorcet cycle such that each candidate loses to one other candidate by the same margin. Extracting this point allows us to draw the result using Kemeny-Young method. 
+\code{get_kemeny_point()} returns the vector of first-preference location (in standard 3D coordinates) such that, given the pattern of lower rankings, there would be a three-way tie according to the Kemeny-Young method. That is, there is a Condorcet cycle such that each candidate loses to one other candidate by the same margin. Extracting this point allows us to draw the result using Kemeny-Young method.
 
 \code{a.beats.b.at()} returns a logical.
 }

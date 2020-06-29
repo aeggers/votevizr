@@ -8,16 +8,24 @@
 #' the proportion of top ranks each candidate would need to win the election
 #' (given the pattern of lower rankings).
 #' 
-#' @param v.vec A vector of ballot counts or shares of length 9 or 6. If candidates 
-#'     are A, B, and C, then the components indicate the count/share
-#'     of ballots ranking the candidates (AB, AC, BA, BC, CA, CB, A, B, C); if the vector is length 6 the last three are assumed to be zero. The vertices will be plotted with A on the botton left, B on the top, and C on the bottom right.
+#' @param result The result of the election to be plotted. There are three ways to specify a result: 
+#'    \itemize{
+#'    \item As a vector of ballot counts/shares of length 6 or length 9. 
+#'    If candidates are A, B, and C, then the components should be 
+#'    listed as (length 6 case) \code{c(ab, ac, ba, bc, ca, cb)} or
+#'     (length 9 case) \code{c(ab, ac, ax, ba, bc, bx, ca, cb, cx)} where
+#'     \code{ab} indicates the count or share of ballots listing \code{a}
+#'      first and \code{b} second (implicitly \code{c} last) and 
+#'      \code{ax} indicates the count of share of ballots listing \code{a}
+#'      first and no one second. 
+#'      \item As a matrix with a row for each of the three valid first choices (e.g. A, B, C) and a column for each valid second choice (A, B, C, and X if incomplete ballots are permitted)
+#'      \item As a data frame in "long" format with the first and second columns identifying valid combinations of first and second choices (respectively) and a column of counts/shares} See documentation for \code{convert_result_to_vector_of_vote_shares()} for more detail on acceptable \code{result} input.
 #' @param vertex.labels Labels for the vertices, in order bottom-left, top, bottom-right.
 #' @param add.fp.result Include a dot for the observed shares of first-preferences, i.e. top rankings? 
 #' @param shading.cols Colors for sharing first-preference win regions, in order bottom-left, top, bottom-right.
-#' @param from.v.vec If provided, show two results on one plot.
 #' @param secondary.line.col Color for guidelines.
 #' @param secondary.line.lwd Line width of guidelines 
-#' @param main Main title for plot.
+#' @param main Main title for the plot.
 #' @param new Draw new plot? If F, adds to existing plot.
 #' = T, 
 #' @param border Color of border of ternary diagram.
@@ -25,9 +33,7 @@
 #' @param fp.result.col Color for first preference result.
 #' @param fp.result.cex Size of first preference result. 
 #' @param space How far from vertices to put labels? Default .1, where 1 is distance between bottom left and bottom right vertices. 
-#' @param clipped Allows to focus on one part of figure.
-#' @param clipped.x.range Vector of range of x to show (like xlim), in standard coordinates. 
-#' @param clipped.y.range Vector of range of y to show (like ylim), in standard coordinates. 
+#' @param xlim,ylim Allows to focus on one part of figure. These are in standard coordinates. 
 #' @param draw.elimination.regions Draws lines to show first preference shares where each candidate would be eliminated.
 #' @param draw.majority.thresholds Draws lines to show where each candidate would win a majority of first preference shares. 
 #' @return Beyond making the plot, the funtion returns a list of three points (in standard coordinates), each of
@@ -39,29 +45,16 @@
 #'     on the pattern of second preferences. These points can 
 #'     be useful for augmenting the plot.
 #' @examples
-#' plot.av.result(c(20, 3, 3,6, 7, 19))
-#' plot.av.result(c(20, 3, 3,6, 7, 19, 4,6,2))
+#' plot_rcv_result(c(20, 3, 3,6, 7, 19))
+#' plot_rcv_result(c(20, 3, 3,6, 7, 19, 4,6,2))
 #' @export
-plot.av.result = function(v.vec, vertex.labels = c("A", "B", "C"), add.fp.result = T, fp.result.col = "black", fp.result.cex = 1, shading.cols = c("#E495A566", "#86B87566", "#7DB0DD66"), from.v.vec = NULL, secondary.line.col = "gray", secondary.line.lwd = 2, main = NULL, new = T, border = "black", border.lwd = 1,  space = .1, clipped = F, clipped.x.range = c(1/4, 3/4), clipped.y.range = c(0, 1/2), draw.elimination.regions = F, draw.majority.thresholds = F){
+plot_rcv_result = function(result, vertex.labels = c("A", "B", "C"), add.fp.result = T, fp.result.col = "black", fp.result.cex = 1, shading.cols = c("#E495A566", "#86B87566", "#7DB0DD66"), secondary.line.col = "gray", secondary.line.lwd = 2, main = NULL, new = T, border = "black", border.lwd = 1,  space = .1, xlim = c(0, 1), ylim = c(0, sqrt(3/4)), draw.elimination.regions = F, draw.majority.thresholds = F){
   
-  # v.vec is in AB, AC, BA, BC, CA, CB, AX, BX, CX order 
-  # A is bottom left, B is top, C is bottom right 
-  
-  # fill out v.vec
-  if(length(v.vec == 6)){
-    v.vec = c(v.vec, 0, 0, 0)
-  }
-  
-  # normalize v.vec 
-  v.vec = v.vec/sum(v.vec)
+  v.vec <- convert_result_to_vector_of_vote_shares(result)
   
   # the basic plot
   if(new){
-    xs = c(0, 1) + c(-space, space); ys = c(0, sqrt(3/4)) + sqrt(3/4)*c(-space, space)
-    if(clipped){
-      xs = clipped.x.range + c(-space/2, space/2)
-      ys = clipped.y.range + sqrt(3/4)*c(-space/2, space/2)
-    }
+    xs = xlim + c(-space, space); ys = ylim + sqrt(3/4)*c(-space, space)
     plot(xs, ys, type = "n", xlab = "", ylab = "", axes = F, main = main) # blank canvas in space defined by clipped params
     add.ternary.boundary()
     
@@ -86,15 +79,6 @@ plot.av.result = function(v.vec, vertex.labels = c("A", "B", "C"), add.fp.result
   
   # the first preference shares
   fp.vec = c(sum(v.vec[c(1,2,7)]), sum(v.vec[c(3,4,8)]), sum(v.vec[c(5,6,9)]))
-  
-  if(!is.null(from.v.vec)){
-    if(length(from.v.vec == 6)){
-      from.v.vec = c(from.v.vec, 0, 0, 0)
-    }
-    from.fp.vec = c(sum(from.v.vec[c(1,2,7)]), sum(from.v.vec[c(3,4,8)]), sum(from.v.vec[c(5,6,9)]))
-    plot.av.result(v.vec = from.v.vec, new = F, shading.cols = c(NULL, NULL, NULL), border = "gray", fp.result.col = "black", fp.result.cex = .5, vertex.labels = c("", "", ""))
-    add.ternary.lines(fp.vec[c(1,3,2)], from.fp.vec[c(1,3,2)], col = "black")		
-  }
   
   # second-round pivotal events 
   mAB = (v.vec[1] - v.vec[2])/fp.vec[1]

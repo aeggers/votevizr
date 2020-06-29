@@ -14,13 +14,13 @@ simplex.y(x)
 simplex.xy(x)
 }
 \arguments{
-\item{x}{A triple representing votes or vote shares for three 
+\item{x}{A triple representing votes or vote shares for three
 candidates. Translated to correspond to lower left, lower right,
 and top vertices of ternary diagram (respectively).}
 }
 \value{
 The x coordinate (for \code{simplex.x} and \code{simplex.y})
-    or the x and y coordinates (for \code{simplex.xy}).
+or the x and y coordinates (for \code{simplex.xy}).
 }
 \description{
 These functions perform the translation from standard

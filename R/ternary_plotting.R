@@ -5,9 +5,10 @@ add.ternary.point = function(point, x.offset = 0, y.offset = 0, ...){
 }
 
 add.ternary.text = function(point, labels, x.offset = 0, y.offset = 0, ...){
-  text(x = simplex.x(point) + x.offset, y = simplex.y(point) + y.offset, ...)
+  text(x = simplex.x(point) + x.offset, y = simplex.y(point) + y.offset, labels = labels, ...)
 }
 
+#' @export
 add.ternary.lines = function(point.1, point.2, x.adj = c(0,0), y.adj = c(0, 0), ...){
   lines(x = c(simplex.x(point.1) + x.adj[1], simplex.x(point.2) + x.adj[2]), y = c(simplex.y(point.1) + y.adj[1], simplex.y(point.2) + y.adj[2]), ...)
 }
@@ -46,6 +47,7 @@ add.ternary.polygon = function(point.mat, border = NULL, border.lwd = 1, col = N
 
 
 #### commands for making the blank canvas and guidelines on it. #### 
+#' @export
 add.ternary.guidelines = function(maj_guidelines = T, plurality_guidelines = F, plurality_tie_lines = T, lwd = 1, lty = 3, col = rgb(.2, .2, .2, alpha = .8), overhang = 0){
   if(maj_guidelines){
     add.ternary.lines2(c(1/2, 1/2, 0), c(0, 1/2, 1/2), col = col, lwd = lwd, lty = lty, overhang = overhang)
@@ -65,6 +67,7 @@ add.ternary.guidelines = function(maj_guidelines = T, plurality_guidelines = F, 
   }
 }
 
+#' @export
 add.ternary.boundary = function(lwd = 1){
   bca.vertex = c(1, 0, 0)
   cba.vertex = c(0, 1, 0)
@@ -76,4 +79,29 @@ add.ternary.boundary = function(lwd = 1){
   lines(c(bac.v.x, cba.v.x), c(bac.v.y, cba.v.y), lwd = lwd)
   lines(c(bca.v.x, cba.v.x), c(bca.v.y, cba.v.y), lwd = lwd)
   lines(c(bac.v.x, bca.v.x), c(bac.v.y, bca.v.y), lwd = lwd)
+}
+
+#' @export
+plot_blank_ternary <- function(space = .1, label.offset = .05, vertex.labels = c("A", "B", "C"), main = NULL){
+  xs = c(0, 1) + c(-space, space); ys = c(0, sqrt(3/4)) + sqrt(3/4)*c(-space, space)
+  plot(xs, ys, type = "n", xlab = "", ylab = "", axes = F, main = main)
+  add.ternary.boundary()
+  add.ternary.text(c(1,0,0), labels = vertex.labels[1], x.offset = -label.offset, y.offset = -sqrt(3/4)*label.offset)
+  add.ternary.text(c(0,0,1), labels = vertex.labels[2], x.offset = 0, y.offset = sqrt(3/4)*label.offset)
+  add.ternary.text(c(0,1,0), labels = vertex.labels[3], x.offset = label.offset, y.offset = -sqrt(3/4)*label.offset)
+}
+
+#' @export
+add.ternary.gridlines <- function(offset = .05, at = c(.25, .5, .75)){
+  for(v in at){
+    add.ternary.lines(point.1 = c(v, 0, 1 - v), point.2 = c(v, 1-v, 0), col = "gray", x.adj = offset/sqrt(3)*c(-1,1), y.adj = offset*2/sqrt(3)*c(1, -1))
+    pt = c(v, 0, 1 - v)
+    text(x = simplex.x(pt) - offset/sqrt(3), simplex.y(pt) + offset*2/sqrt(3), labels = paste0("", v), cex = 0.5, pos = 3)
+    add.ternary.lines(point.1 = c(0, v, 1 - v), point.2 = c(1 - v, v, 0), col = "gray", lty = 2, x.adj = offset/sqrt(3)*c(1, -1), y.adj = offset*2/sqrt(3)*c(1,-1))
+    pt = c(0, v, 1-v)
+    text(x = simplex.x(pt) + offset/sqrt(3), simplex.y(pt) + offset*2/sqrt(3), labels = paste0("", v), cex = 0.5, pos = 3)
+    add.ternary.lines(point.1 = c(0, 1- v, v), point.2 = c(1 - v, 0, v), col = "gray", lty = 3, x.adj = offset*c(1,-1))
+    pt = c(0, 1-v, v)
+    text(x = simplex.x(pt) + offset, simplex.y(pt), labels = paste0("", v), cex = 0.5, pos = 4)
+  } 
 }
