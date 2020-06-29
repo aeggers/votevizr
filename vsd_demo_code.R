@@ -7,4 +7,8 @@ v.vec <- basic.v.vec/sum(basic.v.vec)
 
 plot.condorcet.result(v.vec, in.cycle = "kemeny", add.fp.result = T)
 
-# TODO: better commented code, better options for inputting the voting result (named list?) 
+plot.av.result(v.vec, add.fp.result = T)
+
+plot.positional.result(v.vec, positional.s = .5, add.fp.result = T)
+
+# TODO: better commented code, better options for inputting the voting result (named list?), conorcet completions?  

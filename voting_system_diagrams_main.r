@@ -578,7 +578,6 @@ ternary_point_mats_from_p_vec_and_s_v2 = function(p_vec, s){
 }
 
 ternary_point_mats_from_p_vec_and_s = function(p_vec, s){
-  out = list()
   ab_point_mat_xyz = point_mat_in_xyz_form(p_vec, s)
   ab_point_mat = ab_point_mat_xyz[,c(1,3,2)]
   ac_point_mat_xyz = point_mat_in_xyz_form(c(1 - p_vec[1], p_vec[3], p_vec[2]), s)
