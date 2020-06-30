@@ -18,7 +18,7 @@
 #' plot_condorcet_result(result, in.cycle = "A")
 #' plot_condorcet_result(result, in.cycle = "A", draw.majority.tie.lines = T)
 #' @export
-plot_condorcet_result = function(result, add.fp.result = T, fp.result.col = "black", fp.result.cex = 1, secondary.line.col = "gray", secondary.line.lwd = 2, vertex.labels = c("A", "B", "C"), shading.cols = c("#E495A566", "#86B87566", "#7DB0DD66"), main = NULL, new = T, border = "black", space = .1, xlim = c(0,1), ylim = c(0, sqrt(3/4)), draw.majority.tie.lines = F, in.cycle = "empty"){
+plot_condorcet_result = function(result, add.fp.result = T, fp.result.col = "black", fp.result.cex = 1, secondary.line.col = "gray", secondary.line.lwd = 2, vertex.labels = c("A", "B", "C"), shading.cols = c("#E5F5E099", "#A1D99B99", "#31A35499"), main = NULL, new = T, border = "black", space = .1, xlim = c(0,1), ylim = c(0, sqrt(3/4)), draw.majority.tie.lines = F, in.cycle = "empty"){
   
   v.vec <- convert_result_to_vector_of_vote_shares(result)
   
@@ -26,7 +26,7 @@ plot_condorcet_result = function(result, add.fp.result = T, fp.result.col = "bla
   if(new){
     xs = xlim + c(-space, space); ys = ylim + sqrt(3/4)*c(-space, space)
     plot(xs, ys, type = "n", xlab = "", ylab = "", axes = F, main = main)
-    add.ternary.boundary()
+    add_ternary_boundary()
   }
   
   # FP vote shares
@@ -53,21 +53,21 @@ plot_condorcet_result = function(result, add.fp.result = T, fp.result.col = "bla
     if(mAB < 0){
       ab.point = c(1 - 1/(1-mAB), 1/(1-mAB), 0)
     }
-    add.ternary.lines(AB.tie.C.0, ab.point, col = secondary.line.col)
+    add_ternary_lines(AB.tie.C.0, ab.point, col = secondary.line.col)
     
     # AC majority tie line 
     ac.point = c(0, mAC/(1 + mAC), 1 - mAC/(1 + mAC))
     if(mAC < 0){
       ac.point = c(1 - 1/(1-mAC), 0, 1/(1-mAC))
     }
-    add.ternary.lines(AC.tie.B.0, ac.point, col = secondary.line.col)
+    add_ternary_lines(AC.tie.B.0, ac.point, col = secondary.line.col)
     
     # BC majority tie line 
     bc.point = c(1/(1+mBC), 1 - 1/(1+mBC), 0)
     if(mBC < 0){
       bc.point = c(1/(1 - mBC), 0, 1 - 1/(1-mBC))
     }
-    add.ternary.lines(BC.tie.A.0, bc.point, col = secondary.line.col)
+    add_ternary_lines(BC.tie.A.0, bc.point, col = secondary.line.col)
   }
   
   # intersections 
@@ -142,19 +142,19 @@ plot_condorcet_result = function(result, add.fp.result = T, fp.result.col = "bla
   # winning areas 
   these_shading_cols = shading.cols # [c(1,3,2)]
   for(j in 1:3){
-    add.ternary.polygon(rbind(vertex_mat[j,], first_edge_mat[j,], first_inner_intersection_mat[j, ], k_mat[j,], second_inner_intersection_mat[j,], second_edge_mat[j,], vertex_mat[j,]), col = these_shading_cols[j], border = border)
+    add_ternary_polygon(rbind(vertex_mat[j,], first_edge_mat[j,], first_inner_intersection_mat[j, ], k_mat[j,], second_inner_intersection_mat[j,], second_edge_mat[j,], vertex_mat[j,]), col = these_shading_cols[j], border = border)
   }
   
   # FP result
   if(add.fp.result){
-    add.ternary.point(fp.vec[c(1,3,2)], pch = 19, cex = fp.result.cex, col = fp.result.col)
+    add_ternary_point(fp.vec[c(1,3,2)], pch = 19, cex = fp.result.cex, col = fp.result.col)
   }
   
   if(new){
     label.offset = .05
-    add.ternary.text(c(1,0,0), vertex.labels[1], x.offset = -label.offset, y.offset = -sqrt(3/4)*label.offset)
-    add.ternary.text(c(0, 0,1), vertex.labels[2], x.offset = 0, y.offset = sqrt(3/4)*label.offset)
-    add.ternary.text(c(0,1,0), vertex.labels[3], x.offset = label.offset, y.offset = -sqrt(3/4)*label.offset)
+    add_ternary_text(c(1,0,0), vertex.labels[1], x.offset = -label.offset, y.offset = -sqrt(3/4)*label.offset)
+    add_ternary_text(c(0, 0,1), vertex.labels[2], x.offset = 0, y.offset = sqrt(3/4)*label.offset)
+    add_ternary_text(c(0,1,0), vertex.labels[3], x.offset = label.offset, y.offset = -sqrt(3/4)*label.offset)
   }
   
   cycle_mat

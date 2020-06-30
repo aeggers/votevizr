@@ -12,7 +12,7 @@ plot_condorcet_result(
   secondary.line.col = "gray",
   secondary.line.lwd = 2,
   vertex.labels = c("A", "B", "C"),
-  shading.cols = c("#E495A566", "#86B87566", "#7DB0DD66"),
+  shading.cols = c("#E5F5E099", "#A1D99B99", "#31A35499"),
   main = NULL,
   new = T,
   border = "black",

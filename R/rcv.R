@@ -48,7 +48,7 @@
 #' plot_rcv_result(c(20, 3, 3,6, 7, 19))
 #' plot_rcv_result(c(20, 3, 3,6, 7, 19, 4,6,2))
 #' @export
-plot_rcv_result = function(result, vertex.labels = c("A", "B", "C"), add.fp.result = T, fp.result.col = "black", fp.result.cex = 1, shading.cols = c("#E495A566", "#86B87566", "#7DB0DD66"), secondary.line.col = "gray", secondary.line.lwd = 2, main = NULL, new = T, border = "black", border.lwd = 1,  space = .1, xlim = c(0, 1), ylim = c(0, sqrt(3/4)), draw.elimination.regions = F, draw.majority.thresholds = F){
+plot_rcv_result = function(result, vertex.labels = c("A", "B", "C"), add.fp.result = T, fp.result.col = "black", fp.result.cex = 1, shading.cols = c("#E5F5E099", "#A1D99B99", "#31A35499"), secondary.line.col = "gray", secondary.line.lwd = 2, main = NULL, new = T, border = "black", border.lwd = 1,  space = .1, xlim = c(0, 1), ylim = c(0, sqrt(3/4)), draw.elimination.regions = F, draw.majority.thresholds = F){
   
   v.vec <- convert_result_to_vector_of_vote_shares(result)
   
@@ -56,23 +56,23 @@ plot_rcv_result = function(result, vertex.labels = c("A", "B", "C"), add.fp.resu
   if(new){
     xs = xlim + c(-space, space); ys = ylim + sqrt(3/4)*c(-space, space)
     plot(xs, ys, type = "n", xlab = "", ylab = "", axes = F, main = main) # blank canvas in space defined by clipped params
-    add.ternary.boundary()
+    add_ternary_boundary()
     
     # majority thresholds
     if(draw.majority.thresholds){
-      add.ternary.lines(c(1/2, 1/2, 0), c(0, 1/2, 1/2), col = secondary.line.col, lwd = secondary.line.lwd, lty = 3)
-      add.ternary.lines(c(0, 1/2, 1/2), c(1/2, 0, 1/2), col = secondary.line.col, lwd = secondary.line.lwd, lty = 3)
-      add.ternary.lines(c(1/2, 0, 1/2), c(1/2, 1/2, 0), col = secondary.line.col, lwd = secondary.line.lwd, lty = 3)
-      add.ternary.lines(c(1/2, 1/4, 1/4), c(1/3, 1/3, 1/3), col = secondary.line.col, lwd = secondary.line.lwd, lty = 2)
-      add.ternary.lines(c(1/4, 1/2, 1/4), c(1/3, 1/3, 1/3), col = secondary.line.col, lwd = secondary.line.lwd, lty = 2)
-      add.ternary.lines(c(1/4, 1/4, 1/2), c(1/3, 1/3, 1/3), col = secondary.line.col, lwd = secondary.line.lwd, lty = 2)		
+      add_ternary_lines(c(1/2, 1/2, 0), c(0, 1/2, 1/2), col = secondary.line.col, lwd = secondary.line.lwd, lty = 3)
+      add_ternary_lines(c(0, 1/2, 1/2), c(1/2, 0, 1/2), col = secondary.line.col, lwd = secondary.line.lwd, lty = 3)
+      add_ternary_lines(c(1/2, 0, 1/2), c(1/2, 1/2, 0), col = secondary.line.col, lwd = secondary.line.lwd, lty = 3)
+      add_ternary_lines(c(1/2, 1/4, 1/4), c(1/3, 1/3, 1/3), col = secondary.line.col, lwd = secondary.line.lwd, lty = 2)
+      add_ternary_lines(c(1/4, 1/2, 1/4), c(1/3, 1/3, 1/3), col = secondary.line.col, lwd = secondary.line.lwd, lty = 2)
+      add_ternary_lines(c(1/4, 1/4, 1/2), c(1/3, 1/3, 1/3), col = secondary.line.col, lwd = secondary.line.lwd, lty = 2)		
     }
     
     # first-round pivotal events
     if(draw.elimination.regions){
-      add.ternary.lines(c(1, 0, 0), c(1/3, 1/3, 1/3), col = secondary.line.col, lwd = secondary.line.lwd, lty = 2)
-      add.ternary.lines(c(0, 1, 0), c(1/3, 1/3, 1/3), col = secondary.line.col, lwd = secondary.line.lwd, lty = 2)
-      add.ternary.lines(c(0, 0, 1), c(1/3, 1/3, 1/3), col = secondary.line.col, lwd = secondary.line.lwd, lty = 2)		
+      add_ternary_lines(c(1, 0, 0), c(1/3, 1/3, 1/3), col = secondary.line.col, lwd = secondary.line.lwd, lty = 2)
+      add_ternary_lines(c(0, 1, 0), c(1/3, 1/3, 1/3), col = secondary.line.col, lwd = secondary.line.lwd, lty = 2)
+      add_ternary_lines(c(0, 0, 1), c(1/3, 1/3, 1/3), col = secondary.line.col, lwd = secondary.line.lwd, lty = 2)		
     }
     
   }
@@ -129,7 +129,7 @@ plot_rcv_result = function(result, vertex.labels = c("A", "B", "C"), add.fp.resu
                     AC.tie.B.max,
                     AC.tie.B.0
   )		
-  add.ternary.polygon(point.mat, col = shading.cols[1], border = border, border.lwd = border.lwd)
+  add_ternary_polygon(point.mat, col = shading.cols[1], border = border, border.lwd = border.lwd)
   
   # B winning area 
   point.mat = rbind(
@@ -144,7 +144,7 @@ plot_rcv_result = function(result, vertex.labels = c("A", "B", "C"), add.fp.resu
                     AB.tie.C.max,
                     AB.tie.C.0
   )		
-  add.ternary.polygon(point.mat, col = shading.cols[2], border = border, border.lwd = border.lwd)
+  add_ternary_polygon(point.mat, col = shading.cols[2], border = border, border.lwd = border.lwd)
   
   # C winning area 
   point.mat = rbind(
@@ -159,18 +159,18 @@ plot_rcv_result = function(result, vertex.labels = c("A", "B", "C"), add.fp.resu
                     BC.tie.A.max,
                     BC.tie.A.0
   )		
-  add.ternary.polygon(point.mat, col = shading.cols[3], border = border, border.lwd = border.lwd)
+  add_ternary_polygon(point.mat, col = shading.cols[3], border = border, border.lwd = border.lwd)
   
   # FP result
   if(add.fp.result){
-    add.ternary.point(fp.vec[c(1,3,2)], pch = 19, cex = fp.result.cex, col = fp.result.col)
+    add_ternary_point(fp.vec[c(1,3,2)], pch = 19, cex = fp.result.cex, col = fp.result.col)
   }
   
   if(new){
     label.offset = .05
-    add.ternary.text(c(1,0,0), vertex.labels[1], x.offset = -label.offset, y.offset = -sqrt(3/4)*label.offset)
-    add.ternary.text(c(0, 0,1), vertex.labels[2], x.offset = 0, y.offset = sqrt(3/4)*label.offset)
-    add.ternary.text(c(0,1,0), vertex.labels[3], x.offset = label.offset, y.offset = -sqrt(3/4)*label.offset)
+    add_ternary_text(c(1,0,0), vertex.labels[1], x.offset = -label.offset, y.offset = -sqrt(3/4)*label.offset)
+    add_ternary_text(c(0, 0,1), vertex.labels[2], x.offset = 0, y.offset = sqrt(3/4)*label.offset)
+    add_ternary_text(c(0,1,0), vertex.labels[3], x.offset = label.offset, y.offset = -sqrt(3/4)*label.offset)
   }
   
   list("AB.tie.C.max" = AB.tie.C.max, "AC.tie.B.max" = AC.tie.B.max, "BC.tie.A.max" = BC.tie.A.max)

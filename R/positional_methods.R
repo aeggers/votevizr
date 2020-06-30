@@ -40,7 +40,7 @@ plot_antiplurality_result = function(result, ...){
 
 #' @rdname plot_positional_results
 #' @export
-plot_positional_result = function(result, positional.s = .5, add.fp.result = T, fp.result.col = "black", fp.result.cex = 1, shading.cols = c("#E495A566", "#86B87566", "#7DB0DD66"), secondary.line.col = "gray", secondary.line.lwd = 2, vertex.labels = c("A", "B", "C"), main = NULL, plot_it = T, new = T, border = "black", space = .1, xlim = c(0,1), ylim = c(0, sqrt(3/4)), draw.positional.tie.lines = F){
+plot_positional_result = function(result, positional.s = .5, add.fp.result = T, fp.result.col = "black", fp.result.cex = 1, shading.cols = c("#E5F5E099", "#A1D99B99", "#31A35499"), secondary.line.col = "gray", secondary.line.lwd = 2, vertex.labels = c("A", "B", "C"), main = NULL, plot_it = T, new = T, border = "black", space = .1, xlim = c(0,1), ylim = c(0, sqrt(3/4)), draw.positional.tie.lines = F){
   
   v.vec <- convert_result_to_vector_of_vote_shares(result)
   
@@ -50,7 +50,7 @@ plot_positional_result = function(result, positional.s = .5, add.fp.result = T, 
   if(plot_it & new){
     xs = xlim + c(-space, space); ys = ylim + sqrt(3/4)*c(-space, space)
     plot(xs, ys, type = "n", xlab = "", ylab = "", axes = F, main = main)
-    add.ternary.boundary()
+    add_ternary_boundary()
   }
   
   # FP vote shares
@@ -68,7 +68,7 @@ plot_positional_result = function(result, positional.s = .5, add.fp.result = T, 
 
     if(plot_it & draw.positional.tie.lines){
     for(j in 1:3){
-      add.ternary.lines(tpms[[j]][1,], tpms[[j]][2,], col = secondary.line.col)
+      add_ternary_lines(tpms[[j]][1,], tpms[[j]][2,], col = secondary.line.col)
     }
   }
   
@@ -97,34 +97,34 @@ plot_positional_result = function(result, positional.s = .5, add.fp.result = T, 
   
   # winning areas 
   if(min(intersection.point) >= 0){
-    add.ternary.polygon(rbind(A.vertex, tpms[[2]][1,], intersection.point, tpms[[1]][1,], A.vertex), col = shading.cols[1], border = border)
-    add.ternary.polygon(rbind(B.vertex, tpms[[1]][1,], intersection.point, tpms[[3]][1,], B.vertex), col = shading.cols[2], border = border)
-    add.ternary.polygon(rbind(C.vertex, tpms[[2]][1,], intersection.point, tpms[[3]][1,], C.vertex), col = shading.cols[3], border = border)
+    add_ternary_polygon(rbind(A.vertex, tpms[[2]][1,], intersection.point, tpms[[1]][1,], A.vertex), col = shading.cols[1], border = border)
+    add_ternary_polygon(rbind(B.vertex, tpms[[1]][1,], intersection.point, tpms[[3]][1,], B.vertex), col = shading.cols[2], border = border)
+    add_ternary_polygon(rbind(C.vertex, tpms[[2]][1,], intersection.point, tpms[[3]][1,], C.vertex), col = shading.cols[3], border = border)
   }else if(intersection.point[3] < 0){
-    add.ternary.polygon(rbind(A.vertex, tpms[[1]][1,], tpms[[1]][2,], A.vertex), col = shading.cols[1], border = border)
-    add.ternary.polygon(rbind(B.vertex, tpms[[1]][1,], tpms[[1]][2,], tpms[[3]][2,], tpms[[3]][1,], B.vertex), col = shading.cols[2], border = border)
-    add.ternary.polygon(rbind(C.vertex, tpms[[3]][1,], tpms[[3]][2,], C.vertex), col = shading.cols[3], border = border)
+    add_ternary_polygon(rbind(A.vertex, tpms[[1]][1,], tpms[[1]][2,], A.vertex), col = shading.cols[1], border = border)
+    add_ternary_polygon(rbind(B.vertex, tpms[[1]][1,], tpms[[1]][2,], tpms[[3]][2,], tpms[[3]][1,], B.vertex), col = shading.cols[2], border = border)
+    add_ternary_polygon(rbind(C.vertex, tpms[[3]][1,], tpms[[3]][2,], C.vertex), col = shading.cols[3], border = border)
   }else if(intersection.point[1] < 0){
-    add.ternary.polygon(rbind(A.vertex, tpms[[1]][1,], tpms[[1]][2,], tpms[[2]][2,],  tpms[[2]][1,], A.vertex), col = shading.cols[1], border = border)
-    add.ternary.polygon(rbind(B.vertex, tpms[[1]][1,], tpms[[1]][2,], B.vertex), col = shading.cols[2], border = border)
-    add.ternary.polygon(rbind(C.vertex, tpms[[2]][1,], tpms[[2]][2,], C.vertex), col = shading.cols[3], border = border)
+    add_ternary_polygon(rbind(A.vertex, tpms[[1]][1,], tpms[[1]][2,], tpms[[2]][2,],  tpms[[2]][1,], A.vertex), col = shading.cols[1], border = border)
+    add_ternary_polygon(rbind(B.vertex, tpms[[1]][1,], tpms[[1]][2,], B.vertex), col = shading.cols[2], border = border)
+    add_ternary_polygon(rbind(C.vertex, tpms[[2]][1,], tpms[[2]][2,], C.vertex), col = shading.cols[3], border = border)
   }else if(intersection.point[2] < 0){
-    add.ternary.polygon(rbind(A.vertex, tpms[[2]][1,], tpms[[2]][2,], A.vertex), col = shading.cols[1], border = border)
-    add.ternary.polygon(rbind(B.vertex, tpms[[3]][1,], tpms[[3]][2,], B.vertex), col = shading.cols[2], border = border)
-    add.ternary.polygon(rbind(C.vertex, tpms[[2]][1,], tpms[[2]][2,], tpms[[3]][2,], tpms[[3]][1,], C.vertex), col = shading.cols[3], border = border)
+    add_ternary_polygon(rbind(A.vertex, tpms[[2]][1,], tpms[[2]][2,], A.vertex), col = shading.cols[1], border = border)
+    add_ternary_polygon(rbind(B.vertex, tpms[[3]][1,], tpms[[3]][2,], B.vertex), col = shading.cols[2], border = border)
+    add_ternary_polygon(rbind(C.vertex, tpms[[2]][1,], tpms[[2]][2,], tpms[[3]][2,], tpms[[3]][1,], C.vertex), col = shading.cols[3], border = border)
   }
   
   
   # FP result
   if(add.fp.result){
-    add.ternary.point(fp.vec[c(1,3,2)], pch = 19, cex = fp.result.cex, col = fp.result.col)
+    add_ternary_point(fp.vec[c(1,3,2)], pch = 19, cex = fp.result.cex, col = fp.result.col)
   }
   
   if(new){
     label.offset = .05
-    add.ternary.text(c(1,0,0), vertex.labels[1], x.offset = -label.offset, y.offset = -sqrt(3/4)*label.offset)
-    add.ternary.text(c(0, 0,1), vertex.labels[2], x.offset = 0, y.offset = sqrt(3/4)*label.offset)
-    add.ternary.text(c(0,1,0), vertex.labels[3], x.offset = label.offset, y.offset = -sqrt(3/4)*label.offset)
+    add_ternary_text(c(1,0,0), vertex.labels[1], x.offset = -label.offset, y.offset = -sqrt(3/4)*label.offset)
+    add_ternary_text(c(0, 0,1), vertex.labels[2], x.offset = 0, y.offset = sqrt(3/4)*label.offset)
+    add_ternary_text(c(0,1,0), vertex.labels[3], x.offset = label.offset, y.offset = -sqrt(3/4)*label.offset)
   }
   
   out.list

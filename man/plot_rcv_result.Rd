@@ -10,7 +10,7 @@ plot_rcv_result(
   add.fp.result = T,
   fp.result.col = "black",
   fp.result.cex = 1,
-  shading.cols = c("#E495A566", "#86B87566", "#7DB0DD66"),
+  shading.cols = c("#E5F5E099", "#A1D99B99", "#31A35499"),
   secondary.line.col = "gray",
   secondary.line.lwd = 2,
   main = NULL,

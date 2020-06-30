@@ -26,8 +26,6 @@ For positional methods, the diagram only makes sense for three-candidate electio
 
 ```{r setup, results = "hide", message = F, warning = F}
 library(votevizr)
-library(tidyverse)
-library(kableExtra)
 ```
 
 # Data example: a Brexit poll
@@ -35,15 +33,15 @@ library(kableExtra)
 We start with the result of a poll from November 2018 in which the UK public was asked to rank three options for the UK's future relationship with the EU. Those options were remain in the EU ("Remain"), accept Theresa May's deal ("Deal"), or leave the EU without a deal ("No deal"). The poll indicated that the proportion of the UK public with each preference ordering was as follows: 
 
 ```{r brexit_orderings, echo = F}
-df <- tibble(
-  `Preference ordering` = c("Remain > Deal > No deal",
+df <- data.frame(
+  "Preference_ordering" = c("Remain > Deal > No deal",
                "No deal > Deal > Remain",
                "Deal > Remain > No deal",
                "Remain > No deal > Deal",
                "Deal > No deal > Remain",
                "No deal > Remain > Deal"),
-  Proportion = c(.375, .228, .212, .087, .059, .038))
-kable(df) 
+  "Proportion" = c(.375, .228, .212, .087, .059, .038))
+knitr::kable(df) 
 ```
 
 We could reorganize that data into a matrix as follows: 
@@ -57,38 +55,39 @@ alternatives <- c("Remain", "Deal", "No deal")
 rownames(brexit_poll) <- paste0(alternatives, " 1st")
 colnames(brexit_poll) <- paste0(alternatives, " 2nd")
 
-kable(brexit_poll)
+knitr::kable(brexit_poll)
 ```
 
 Our objective is to make a diagram that helps us understand who would win under different voting methods that would make use of ordered preference data like this. 
 
 # The ternary diagram  
 
-Our starting point is the *ternary diagram* or *barycentric plot*, which has been used to represent plurality election outcomes for a long time. 
+Our starting point is the *ternary diagram* or *barycentric plot*, which has been used to represent plurality election outcomes for a long time.[^ternary_more]
+
+[^ternary_more]: A good presentation of the ternary diagram for representing election results appears in Katz and King's 1999 article [A Statistical Model for Multiparty Electoral Data](https://doi.org/10.2307/2585758). It is discussed by Ibbetson and Butler in the discussion following H.B. Berrington's 1965 [article](http://doi.org/10.2307/2343436) discussing the UK general election of 1964 link.  
 
 Say we just wanted to show the proportion of people whose first choice is "Remain" vs "Deal" vs "No deal". (These proportions are `r (Rsum = .375 + .087)`, `r (Dsum = .059 + .212)`, and `r (Nsum = .038 + .228)`.) 
 
-Because these numbers sum to 1, we could plot them in Remain-Deal space, as at left below.
+Because these numbers sum to 1, we could plot two of the shares in standard coordinates; at left below we show the "No deal" proportion on the horizontal axis and the "Deal" proportion on the vertical axis. The closer we are to the origin, the higher the share for "Remain".
 
 Alternatively, we can plot them on a ternary diagram, which represents the three alternatives more symmetrically. At each vertex a single alternative receives a share of 1; at the center of the diagram the three alternatives have equal shares. 
 
 ```{r side_by_side, out.width = "100%", fig.width = 9, fig.height = 4, fig.retina = 5, results= "hide", echo = F}
 par(mfrow = c(1,2), mar = c(3,3,1,1))
 
-plot(c(0,1) + .2*c(-1,1), c(0,1) + .2*c(-1,1), type = "n", xlab = "", ylab = "", axes = F, main = "Standard coordinates")
+plot(c(0,1.2) + .2*c(-1,1), c(0,1) + .2*c(-1,1), type = "n", xlab = "", ylab = "", axes = F, main = "Standard coordinates")
 axis(1, at = c(0,1), pos = 0)
 axis(2, at = c(0,1), pos = 0)
 mtext("No deal", side = 1)
 mtext("Deal", side = 2)
-abline(a = 1, b = -1, lty = 2)
+lines(x = c(1, 0), y = c(0, 1), lty = 2)
 points(x = Nsum, y = Dsum, pch = 19)
 
 plot_plurality_result(brexit_poll, main = "Ternary coordinates", vertex.labels = c("Remain", "Deal", "No deal"), shading.cols = rgb(1, 1, 1, alpha = 0), border = "white")
-add.ternary.boundary()
-add.ternary.gridlines()
+add_ternary_boundary()
+add_ternary_gridlines()
 ```
 
-The basic idea of the ternary diagram is to represent a set of shares (points on the simplex) in a way that maintains symmetry among the alternatives.
 
 `votevizr` represents election results in ternary space. 
 
@@ -109,35 +108,35 @@ We can easily change the appearance of the plot: maybe we want to add gridlines 
 
 ```{r plurality_case_2, out.width = "50%", fig.align="center", fig.width = 5, fig.height = 4.33, fig.retina = 5, results= "hide", echo = T}
 par(mar = c(1,1,1,1))
-green_shades <- c(rgb(229/255, 245/255, 224/255, alpha = .6), 
-         rgb(161/255, 217/255, 155/255, alpha = .6),
-         rgb(49/255, 163/255, 84/255, alpha = .6))
-plot_plurality_result(brexit_poll, vertex.labels = c("Remain", "Deal", "No deal"), shading.cols = green_shades)
-add.ternary.gridlines()
+colors <- c(rgb(1,0,0, alpha = .4), 
+         rgb(0,1,0, alpha = .4),
+         rgb(0,0,1, alpha = .4))
+plot_plurality_result(brexit_poll, vertex.labels = c("Remain", "Deal", "No deal"), shading.cols = colors)
+add_ternary_gridlines()
 ```
 
 ## Other positional methods including Borda count
 
 To represent election results for other (ordinal) voting methods, we maintain the idea of using the ternary diagram to represent first-preference shares, but we alter the first-preference win regions, i.e. the colored areas, to reflect the pattern of lower rankings and the voting method being used.
 
-Here we show the result of the Brexit poll under plurality (left) and Borda count (right). The first-preference result, given by the black dot, is the same in the two figures, but the first-preference win regions (the colored) areas shift to indicate that Deal gets a majority of second rankings. Remain would win under plurality but Deal would win under Borda count. 
+Here we show the result of the Brexit poll under plurality (left) and Borda count (right). The first-preference result, given by the black dot, is the same in the two figures, but the first-preference win regions (the colored areas) shift to indicate that Deal gets a majority of second rankings. Remain would win under plurality but Deal would win under Borda count. 
 
 ```{r borda, out.width = "100%", fig.align="center", fig.width = 10, fig.height = 4.33, fig.retina = 5, results= "hide", echo = T}
 par(mar = c(1,1,1,1), mfrow = c(1,2))
-plot_plurality_result(brexit_poll, vertex.labels = c("Remain", "Deal", "No deal"), shading.cols = green_shades, main = "Plurality")
-add.ternary.gridlines()
-plot_borda_result(brexit_poll, vertex.labels = c("Remain", "Deal", "No deal"), shading.cols = green_shades, main = "Borda count")
-add.ternary.gridlines()
+plot_plurality_result(brexit_poll, vertex.labels = c("Remain", "Deal", "No deal"), main = "Plurality")
+add_ternary_gridlines()
+plot_borda_result(brexit_poll, vertex.labels = c("Remain", "Deal", "No deal"), main = "Borda count")
+add_ternary_gridlines()
 ```
 
 Plurality and Borda count are examples of positional methods, which can be characterized by the number of points given to second rankings: if a top ranking is worth 1 and a bottom ranking is worth 0, then plurality is the system in which a middle ranking is worth 0, Borda count is the system in which a middle ranking is worth .5, and anti-plurality is the system in which a middle ranking is worth 0. Between plurality and anti-plurality there are infinite positional methods, and we can plot the result under any one of them! Here we show anti-plurality and a method between Borda and plurality in which Remain and Deal would approximately tie: 
 
 ```{r positional, out.width = "100%", fig.align="center", fig.width = 10, fig.height = 4.33, fig.retina = 5, results= "hide", echo = T}
 par(mar = c(1,1,1,1), mfrow = c(1,2))
-plot_antiplurality_result(brexit_poll, vertex.labels = c("Remain", "Deal", "No deal"), shading.cols = green_shades, main = "Anti-plurality (middle ranking worth 1)")
-add.ternary.gridlines()
-plot_positional_result(brexit_poll, positional.s = 2/5, vertex.labels = c("Remain", "Deal", "No deal"), shading.cols = green_shades, main = "Positional method with middle ranking worth 2/5")
-add.ternary.gridlines()
+plot_antiplurality_result(brexit_poll, vertex.labels = c("Remain", "Deal", "No deal"), main = "Anti-plurality (middle ranking worth 1)")
+add_ternary_gridlines()
+plot_positional_result(brexit_poll, positional.s = 2/5, vertex.labels = c("Remain", "Deal", "No deal"), main = "Positional method with middle ranking worth 2/5")
+add_ternary_gridlines()
 ```
 
 ## Condorcet methods 
@@ -146,17 +145,17 @@ In a Condorcet method, a candidate who defeats every other candidate in pairwise
 
 ```{r condorcet, out.width = "50%", fig.align="center", fig.width = 5, fig.height = 4.33, fig.retina = 5, results= "hide", echo = T}
 par(mar = c(1,1,1,1))
-plot_condorcet_result(brexit_poll, vertex.labels = c("Remain", "Deal", "No deal"), shading.cols = green_shades, main = "Condorcet methods (cycle in white triangle)")
-add.ternary.gridlines()
+plot_condorcet_result(brexit_poll, vertex.labels = c("Remain", "Deal", "No deal"), main = "Condorcet methods (cycle in white triangle)")
+add_ternary_gridlines()
 ```
 
 Various methods have been developed to choose a winner when there is a cycle. One of these is the Kemeny-Young or minimax method, which says that the winner is the candidate who loses by the smallest margin. At left below we show the whole ternary diagram with the cycle filled in according to the Kemeny-Young method; at right we show the same diagram zoomed in to the cyclic area, which shows how `xlim` and `ylim` can be used to focus on areas of the ternary diagram. 
 
 ```{r condorcet_kemeny, out.width = "100%", fig.align="center", fig.width = 10, fig.height = 4.33, fig.retina = 5, results= "hide", echo = T}
 par(mar = c(1,1,1,1), mfrow = c(1,2))
-plot_condorcet_result(brexit_poll, vertex.labels = c("Remain", "Deal", "No deal"), shading.cols = green_shades, main = "Kemeny-Young method", in.cycle = "kemeny")
-add.ternary.gridlines()
-plot_condorcet_result(brexit_poll, vertex.labels = c("Remain", "Deal", "No deal"), shading.cols = green_shades, main = "Kemeny-Young method (zoomed in)", in.cycle = "kemeny", xlim = c(2/5, 3/5), ylim = sqrt(3/4)*c(1/10, 3/10), draw.majority.tie.lines = T, secondary.line.col = "black")
+plot_condorcet_result(brexit_poll, vertex.labels = c("Remain", "Deal", "No deal"), main = "Kemeny-Young method", in.cycle = "kemeny")
+add_ternary_gridlines()
+plot_condorcet_result(brexit_poll, vertex.labels = c("Remain", "Deal", "No deal"), main = "Kemeny-Young method (zoomed in)", in.cycle = "kemeny", xlim = c(2/5, 3/5), ylim = sqrt(3/4)*c(1/10, 3/10), draw.majority.tie.lines = T, secondary.line.col = "black")
 ```
 
 ## Ranked-choice voting (RCV, aka IRV, AV, preferential voting, etc)
@@ -165,11 +164,11 @@ In a three-candidate RCV election, the candidate who wins the fewest first-prefe
 
 ```{r rcv, out.width = "50%", fig.align="center", fig.width = 5, fig.height = 4.33, fig.retina = 5, results= "hide", echo = T}
 par(mar = c(1,1,1,1))
-plot_rcv_result(brexit_poll, vertex.labels = c("Remain", "Deal", "No deal"), shading.cols = green_shades, main = "RCV/AV/IRV")
-add.ternary.gridlines()
+plot_rcv_result(brexit_poll, vertex.labels = c("Remain", "Deal", "No deal"), main = "RCV/AV/IRV")
+add_ternary_gridlines()
 ```
 
-Note the irregular shapes of the firs-preference win regions in RCV. This happens because RCV combines a positional/plurality criterion (don't come last in a plurality contest) with a pairwise/majoritarian criterion (be ranked higher than one's opponent on a majority of ballots). The bent boundary at the center is the plurality part; the lines emanating from the center of each edge are the majority part. This crookedness allows for some interesting mischief. In this case, for example, a voter with the preference order "Remain > Deal > No deal" might consider ranking "No Deal" first in order to eliminate "Deal" in the first round; on the figure, this means moving the dot down and to the right, and more safely in "Remain"'s first-preference win region.  
+Note the irregular shapes of the first-preference win regions in RCV. This happens because RCV combines a positional/plurality criterion (don't come last in a plurality contest) with a pairwise/majoritarian criterion (be ranked higher than one's opponent on a majority of ballots). The bent boundary at the center is the plurality part; the lines emanating from the center of each edge are the majority part. This crookedness allows for some interesting mischief. In this case, for example, a voter with the preference order "Remain > Deal > No deal" might consider ranking "No Deal" first in order to eliminate "Deal" in the first round; on the figure, this means moving the dot down and to the right, and more safely in "Remain"'s first-preference win region.  
 
 ## More candidates
 
@@ -208,7 +207,7 @@ In some systems voters are permitted not to rank all of the candidates. We assum
 - the matrix format adds a fourth column, which must contain the incomplete rankings 
 - the data.frame format adds rows for incomplete rankings; just make sure to use an identifier for incomplete rankings that goes after all the candidate identifiers in a `sort`. For example, use "A", "B", and "C" to identify candidates and "X"  to signify "no candidate chosen second".
 
-## Want to know more about these figures?
+## Want to know more?
 
-The best way to understand exactly what these figures is to read my paper, forthcoming in Social Choice and Welfare. 
+Read my paper, forthcoming in *Social Choice and Welfare* (preprint [here](http://andy.egge.rs/papers/diagramming_election_results_v7_for_RR2.pdf)), which explains the figures in more detail and discusses previous attempts to represent election results in ternary diagrams.    
   
