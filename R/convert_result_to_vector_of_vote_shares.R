@@ -60,7 +60,7 @@ convert_result_to_vector_of_vote_shares <- function(result){
   }
   if(!class(result) %in% c("integer", "numeric")){stop("Election result should be passed as a data.frame, matrix, or numeric vector.")}
   if(sum(is.na(result)) > 0){stop("No NA elements in election result permitted.")}
-  # reorder because this slightly unintuitive order is what the rest of the code expects
+  # reorder because this slightly unintuitive order (where all the truncated ballot counts are put at the end) is what the rest of the code expects
   if(length(result) == 9){
     result <- result[c(1,2,4,5,7,8,3,6,9)]
   }else if(length(result) == 6){
@@ -68,5 +68,6 @@ convert_result_to_vector_of_vote_shares <- function(result){
   }else{
     stop("If passing election result as a vector, must be length 6 or 9.\n")
   }
+  if(length(which(result[1:6] == 6)) > 0){warning("Detected zero in result, i.e. there is a complete ordering which is not found in the data. This will cause problems in some plotting methods.")}
   result/sum(result)
 }
