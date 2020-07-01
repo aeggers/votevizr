@@ -13,6 +13,7 @@
 #' @param s The score (between 0 and 1) given to candidates for second rankings, where 1 is given to top rankings and 0 to bottom rankings. 0 is plurality, .5 is Borda, 1 is anti-plurality. 
 #' 
 #' @param draw_positional_tie_lines Draw positional tie lines for each pair of candidates. 
+#' @param ternary_coordinates Logical: plot on ternary coordinates or standard coordinates?
 #' @return In addition to making the plot (if suppress_plot = F), the function returns a list consisting of a list of \code{positional_tie_line_endpoints} (one per pair of candidates) and the \code{intersection_point} of these tie lines. 
 #' @examples
 #' out <- plot_positional_result_v2(result = c(20, 3, 8, 8, 8, 11), s = 2/5)
@@ -40,12 +41,15 @@ plot_antiplurality_result_v2 = function(result, ...){
 
 #' @rdname plot_positional_result
 #' @export
-plot_positional_result_v2 = function(result, s = .5, show_first_pref_result = T, fp_result_col = "black", fp_result_cex = 1, shading_cols = c("#E5F5E099", "#A1D99B99", "#31A35499"), vertex_labels = c("A", "B", "C"), vertex_labels_cex = 1, offset = .1, margins = c(1,1,1,1), main = NULL, suppress_plot = F, new = T, fp_win_region_border = "darkgray", padding = .1, xlim = c(0,1), ylim = c(0, sqrt(3/4)), draw_positional_tie_lines = F, tie_line_col = "gray"){
+plot_positional_result_v2 = function(result, s = .5, show_first_pref_result = T, fp_result_col = "black", fp_result_cex = 1, shading_cols = c("#E5F5E099", "#A1D99B99", "#31A35499"), vertex_labels = c("A", "B", "C"), vertex_labels_cex = 1, offset = .1, margins = c(1,1,1,1), main = NULL, suppress_plot = F, new = T, fp_win_region_border = "darkgray", padding = .1, xlim = c(0,1), ylim = NULL, draw_positional_tie_lines = F, tie_line_col = "gray", ternary_coordinates = T){
   
-  v_vec <- convert_result_to_vector_of_vote_shares(result)
-  
+  # check that s is correctly specified
   stopifnot(s >= 0 & s <= 1)
   
+  # transform input to appropriate format
+  v_vec <- convert_result_to_vector_of_vote_shares(result)
+  
+  ### compute points of intersection ###
   # FP vote shares
   fp_vec = c(sum(v_vec[c(1,2,7)]), sum(v_vec[c(3,4,8)]), sum(v_vec[c(5,6,9)]))
   
@@ -57,9 +61,10 @@ plot_positional_result_v2 = function(result, s = .5, show_first_pref_result = T,
   pCA = v_vec[5]/fp_vec[3]
   pCB = v_vec[6]/fp_vec[3]
   
+  # this yields a list of 3 matrices, one for each positional tie line
   tpms = ternary_point_mats_from_p_vec_and_s_v3(c(pAB, pAC, pBA, pBC, pCA, pCB), s)  
   
-  # intersection: where A, B, and C all get the same score
+  # find the point intersection among those tie lines, where A, B, and C all get the same score
   # we solve for A in both equations
   d1 = 1 - s*(pAB - pCB + pCA) 
   s1 = (1 - s*(pBA + pCB - pCA))
@@ -72,19 +77,42 @@ plot_positional_result_v2 = function(result, s = .5, show_first_pref_result = T,
   # then substitute one into the other to solve for v_B
   v_b.star = ((i1/d1)*d2 - i2)/(s2 - (d2*s1/d1))
   v_a.star = (v_b.star*s1 + i1)/d1
-  intersection.point = c(v_a.star, v_b.star, 1 - v_b.star - v_a.star)
+  intersection_point = c(v_a.star, v_b.star, 1 - v_b.star - v_a.star)
   
-  out.list = list("intersection_point" = intersection.point, "positional_tie_line_endpoints" = tpms)
+  out.list = list("intersection_point" = intersection_point, "positional_tie_line_endpoints" = tpms)
   if(suppress_plot){return(out.list)}
   
-  # basic plot
-  if(new){
-    plot_blank_ternary_v2(xlim = xlim, ylim = ylim, padding = padding, offset = offset, vertex_labels = vertex_labels, main = main, margins = margins, vertex_labels_cex = vertex_labels_cex)
+  ### make the plot ### 
+  
+  # default ylim depends on type of plot
+  if(is.null(ylim)){
+    if(ternary_coordinates){
+      ylim <- c(0, sqrt(3/4))
+    }else{
+      ylim <- c(0,1)
+    }
+  }
+  
+  if(ternary_coordinates){
+    if(new){
+      plot_blank_ternary_v2(xlim = xlim, ylim = ylim, padding = padding, offset = offset, vertex_labels = vertex_labels, main = main, margins = margins, vertex_labels_cex = vertex_labels_cex)
+    }
+    coord_convert <- function(x){ternary_coords(x)}    
+  }else{
+    if(new){
+      par(mar = margins)
+      plot(x = xlim + padding*c(-1,1), y = ylim + padding*c(-1,1), type = "n", axes = F, xlab = "", ylab = "", main = main)
+      axis(1, pos = 0)
+      axis(2, pos = 0)
+      mtext(side = 1, vertex_labels[1], cex = vertex_labels_cex)
+      mtext(side = 2, vertex_labels[2], cex = vertex_labels_cex)
+    }
+    coord_convert <- function(x){x[,-3,drop = F]}
   }
   
   if(draw_positional_tie_lines){
     for(j in 1:3){
-      ternary_lines(x = tpms[[j]], col = tie_line_col)
+      lines(x = coord_convert(tpms[[j]]), col = tie_line_col)
     }
   }
   
@@ -94,27 +122,27 @@ plot_positional_result_v2 = function(result, s = .5, show_first_pref_result = T,
   C.vertex = c(0,0,1)
   
   # winning areas 
-  if(min(intersection.point) >= 0){
-    ternary_polygon(rbind(A.vertex, tpms[[2]][1,], intersection.point, tpms[[1]][1,], A.vertex), col = shading_cols[1], border = fp_win_region_border)
-    ternary_polygon(rbind(B.vertex, tpms[[1]][1,], intersection.point, tpms[[3]][1,], B.vertex), col = shading_cols[2], border = fp_win_region_border)
-    ternary_polygon(rbind(C.vertex, tpms[[2]][1,], intersection.point, tpms[[3]][1,], C.vertex), col = shading_cols[3], border = fp_win_region_border)
-  }else if(intersection.point[2] < 0){
-    ternary_polygon(rbind(A.vertex, tpms[[1]][1,], tpms[[1]][2,], A.vertex), col = shading_cols[1], border = fp_win_region_border)
-    ternary_polygon(rbind(B.vertex, tpms[[1]][1,], tpms[[1]][2,], tpms[[3]][2,], tpms[[3]][1,], B.vertex), col = shading_cols[2], border = fp_win_region_border)
-    ternary_polygon(rbind(C.vertex, tpms[[3]][1,], tpms[[3]][2,], C.vertex), col = shading_cols[3], border = fp_win_region_border)
-  }else if(intersection.point[1] < 0){
-    ternary_polygon(rbind(A.vertex, tpms[[1]][1,], tpms[[1]][2,], tpms[[2]][2,],  tpms[[2]][1,], A.vertex), col = shading_cols[1], border = fp_win_region_border)
-    ternary_polygon(rbind(B.vertex, tpms[[1]][1,], tpms[[1]][2,], B.vertex), col = shading_cols[2], border = fp_win_region_border)
-    ternary_polygon(rbind(C.vertex, tpms[[2]][1,], tpms[[2]][2,], C.vertex), col = shading_cols[3], border = fp_win_region_border)
-  }else if(intersection.point[3] < 0){
-    ternary_polygon(rbind(A.vertex, tpms[[2]][1,], tpms[[2]][2,], A.vertex), col = shading_cols[1], border = fp_win_region_border)
-    ternary_polygon(rbind(B.vertex, tpms[[3]][1,], tpms[[3]][2,], B.vertex), col = shading_cols[2], border = fp_win_region_border)
-    ternary_polygon(rbind(C.vertex, tpms[[2]][1,], tpms[[2]][2,], tpms[[3]][2,], tpms[[3]][1,], C.vertex), col = shading_cols[3], border = fp_win_region_border)
+  if(min(intersection_point) >= 0){
+    polygon(coord_convert(rbind(A.vertex, tpms[[2]][1,], intersection_point, tpms[[1]][1,], A.vertex)), col = shading_cols[1], border = fp_win_region_border)
+    polygon(coord_convert(rbind(B.vertex, tpms[[1]][1,], intersection_point, tpms[[3]][1,], B.vertex)), col = shading_cols[2], border = fp_win_region_border)
+    polygon(coord_convert(rbind(C.vertex, tpms[[2]][1,], intersection_point, tpms[[3]][1,], C.vertex)), col = shading_cols[3], border = fp_win_region_border)
+  }else if(intersection_point[2] < 0){
+    polygon(coord_convert(rbind(A.vertex, tpms[[1]][1,], tpms[[1]][2,], A.vertex)), col = shading_cols[1], border = fp_win_region_border)
+    polygon(coord_convert(rbind(B.vertex, tpms[[1]][1,], tpms[[1]][2,], tpms[[3]][2,], tpms[[3]][1,], B.vertex)), col = shading_cols[2], border = fp_win_region_border)
+    polygon(coord_convert(rbind(C.vertex, tpms[[3]][1,], tpms[[3]][2,], C.vertex)), col = shading_cols[3], border = fp_win_region_border)
+  }else if(intersection_point[1] < 0){
+    polygon(coord_convert(rbind(A.vertex, tpms[[1]][1,], tpms[[1]][2,], tpms[[2]][2,],  tpms[[2]][1,], A.vertex)), col = shading_cols[1], border = fp_win_region_border)
+    polygon(coord_convert(rbind(B.vertex, tpms[[1]][1,], tpms[[1]][2,], B.vertex)), col = shading_cols[2], border = fp_win_region_border)
+    polygon(coord_convert(rbind(C.vertex, tpms[[2]][1,], tpms[[2]][2,], C.vertex)), col = shading_cols[3], border = fp_win_region_border)
+  }else if(intersection_point[3] < 0){
+    polygon(coord_convert(rbind(A.vertex, tpms[[2]][1,], tpms[[2]][2,], A.vertex)), col = shading_cols[1], border = fp_win_region_border)
+    polygon(coord_convert(rbind(B.vertex, tpms[[3]][1,], tpms[[3]][2,], B.vertex)), col = shading_cols[2], border = fp_win_region_border)
+    polygon(coord_convert(rbind(C.vertex, tpms[[2]][1,], tpms[[2]][2,], tpms[[3]][2,], tpms[[3]][1,], C.vertex)), col = shading_cols[3], border = fp_win_region_border)
   }
   
   # FP result
   if(show_first_pref_result){
-    ternary_points(fp_vec, pch = 19, cex = fp_result_cex, col = fp_result_col)
+    points(coord_convert(matrix(fp_vec, nrow = 1)), pch = 19, cex = fp_result_cex, col = fp_result_col)
   }
   
   out.list
