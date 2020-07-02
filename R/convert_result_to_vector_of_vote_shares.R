@@ -71,3 +71,43 @@ convert_result_to_vector_of_vote_shares <- function(result){
   if(length(which(result[1:6] == 6)) > 0){warning("Detected zero in result, i.e. there is a complete ordering which is not found in the data. This will cause problems in some plotting methods.")}
   result/sum(result)
 }
+
+extract_vector_of_vote_shares_and_candidate_names_from_result <- function(result, split = ""){
+  
+  # various ways to supply result 
+  # how about a named list: 
+  # list("ABC" = 20, "ACB" = 9, "BAC" = 10, "BCA" = 9, "CAB" = 7, "CBA" = 8, "A" = 1, "B" = 3, "C" = 4)
+  
+  if(class(result) == "list"){
+    df <- data.frame(ballot = names(result), value = unlist(result))
+    candidate_names <- unique(unlist(strsplit(as.character(df$ballot), split = split))) 
+    if(length(candidate_names) > 3){
+      stop("Was expecting three candidate names at most.")
+    }
+    v_vec <- sums_for_patterns(df, candidate_names, split)
+  }else{stop("Expecting results to be provided in a named list.")}
+  
+  if(length(candidate_names) != 3){
+    stop(paste0("I detected ", length(candidate_names), " candidate names but I expected 3."))
+  }
+  
+  list(vector_of_vote_shares = v_vec, candidate_names = candidate_names)
+  
+}
+
+sum_for_pattern <- function(df, pattern){
+  sum(df$value[grepl(pattern, df$ballot)])
+}
+
+sums_for_patterns <- function(df, candidates, split = ""){
+  c(sum_for_pattern(df, paste0("^", candidates[1], split, candidates[2])),
+    sum_for_pattern(df, paste0("^", candidates[1], split, candidates[3])),
+    sum_for_pattern(df, paste0("^", candidates[2], split, candidates[1])),
+    sum_for_pattern(df, paste0("^", candidates[2], split, candidates[3])),
+    sum_for_pattern(df, paste0("^", candidates[3], split, candidates[1])),
+    sum_for_pattern(df, paste0("^", candidates[3], split, candidates[2])),
+    sum_for_pattern(df, paste0("^", candidates[1], "$")),
+    sum_for_pattern(df, paste0("^", candidates[2], "$")),
+    sum_for_pattern(df, paste0("^", candidates[3], "$"))
+  )
+}
