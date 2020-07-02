@@ -93,6 +93,7 @@ plot_positional_result_v2 = function(result, s = .5, show_first_pref_result = T,
     }
   }
   
+  # initialize plot and the coordinate conversion method
   if(ternary_coordinates){
     if(new){
       plot_blank_ternary_v2(xlim = xlim, ylim = ylim, padding = padding, offset = offset, vertex_labels = vertex_labels, main = main, margins = margins, vertex_labels_cex = vertex_labels_cex)
@@ -100,16 +101,12 @@ plot_positional_result_v2 = function(result, s = .5, show_first_pref_result = T,
     coord_convert <- function(x){ternary_coords(x)}    
   }else{
     if(new){
-      par(mar = margins)
-      plot(x = xlim + padding*c(-1,1), y = ylim + padding*c(-1,1), type = "n", axes = F, xlab = "", ylab = "", main = main)
-      axis(1, pos = 0)
-      axis(2, pos = 0)
-      mtext(side = 1, vertex_labels[1], cex = vertex_labels_cex)
-      mtext(side = 2, vertex_labels[2], cex = vertex_labels_cex)
+      plot_blank_standard(xlim = xlim, ylim = ylim, padding = padding, offset = offset, vertex_labels = vertex_labels, main = main, margins = margins, vertex_labels_cex = vertex_labels_cex)
     }
     coord_convert <- function(x){x[,-3,drop = F]}
   }
   
+  # now add things to plot
   if(draw_positional_tie_lines){
     for(j in 1:3){
       lines(x = coord_convert(tpms[[j]]), col = tie_line_col)
@@ -121,7 +118,7 @@ plot_positional_result_v2 = function(result, s = .5, show_first_pref_result = T,
   B.vertex = c(0,1,0)
   C.vertex = c(0,0,1)
   
-  # winning areas 
+  # first preference win regions 
   if(min(intersection_point) >= 0){
     polygon(coord_convert(rbind(A.vertex, tpms[[2]][1,], intersection_point, tpms[[1]][1,], A.vertex)), col = shading_cols[1], border = fp_win_region_border)
     polygon(coord_convert(rbind(B.vertex, tpms[[1]][1,], intersection_point, tpms[[3]][1,], B.vertex)), col = shading_cols[2], border = fp_win_region_border)

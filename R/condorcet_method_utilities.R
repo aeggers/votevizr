@@ -39,12 +39,12 @@ get_kemeny_point = function(v.vec){
   # point of intersection 
   v_b_star = ((X-2)/X - I)/(M - (Y-X)/X)
   v_a_star = I + v_b_star*M
-  c(v_a_star, 1 - v_a_star - v_b_star, v_b_star)
+  c(v_a_star, v_b_star, 1 - v_a_star - v_b_star)
 }
 
 #' @rdname condorcet_method_utilities
 #' @export
 a.beats.b.at = function(v.vec, point){
   # Does a beat b at the given fp point, given the pattern of preferences in v_vec? If so (and if this is a cycle), this is a forward cycle.
-  point[1] + point[2]*(v.vec[5]/sum(v.vec[c(5,6,9)])) > .5
+  point[1] + point[3]*(v.vec[5]/sum(v.vec[c(5,6,9)])) > .5
 }
