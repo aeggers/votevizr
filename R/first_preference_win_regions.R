@@ -308,10 +308,8 @@ condorcet_first_preference_win_regions <- function(result, split = "", if_cycle 
   }
   # now the middle point
   
-  if(if_cycle == "borda"){
-    cat("Haven't done this yet"); 1/0
-  }else if(if_cycle == "IRV"){
-    cat("Haven't done this yet"); 1/0
+  if(if_cycle %in% c("borda", "IRV", "RCV", "Borda")){
+    stop("Haven't done this yet")
   } 
   
   if(if_cycle == "kemeny"){
@@ -324,11 +322,7 @@ condorcet_first_preference_win_regions <- function(result, split = "", if_cycle 
     k_mat = rbind(AC.BC.int, AC.BC.int, AC.BC.int)
   }else if(if_cycle == "empty"){
     k_mat = first_inner_intersection_mat
-# rbind(apply(rbind(AB.AC.int, AB.BC.int), 2, mean),
-#                   apply(rbind(AB.AC.int, AB.BC.int), 2, mean),
-#                   apply(rbind(AC.BC.int, AB.BC.int), 2, mean)
-#                   ) # reversed 2 and 3. 
-  }else{cat("Need to specify what to do in cycle -- empty?"); 1/0} 
+  }else{stop("You provided an unexpected argument to if_cycle.")} 
   
   j = 1
   A_df <- data.frame("candidate" = candidate_names[1], rbind(vertex_mat[j,], first_edge_mat[j,], first_inner_intersection_mat[j, ], k_mat[j,], second_inner_intersection_mat[j,], second_edge_mat[j,], vertex_mat[j,]))
