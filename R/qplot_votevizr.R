@@ -28,6 +28,11 @@ qplot_votevizr <- function(result, split = "", method = "positional", if_cycle =
          call. = FALSE)
   }
   
+  if(!requireNamespace("dplyr", quietly = TRUE)){
+    stop("Package \"dplyr\" needed for qplot_votevizr(). Please install it.",
+         call. = FALSE)
+  }
+  
   # get the polygons for first-preference win regions
   fpwr_main <- result %>% 
     first_preference_win_regions(split = split, method = method, if_cycle = if_cycle, s = s) 
@@ -37,7 +42,7 @@ qplot_votevizr <- function(result, split = "", method = "positional", if_cycle =
   }
   
   fpwr_main <- fpwr_main %>%
-    mutate(x = get(vertex_varnames[1]) + .5*get(vertex_varnames[2]), y = sqrt(3/4)*get(vertex_varnames[2])) # note illicit use of get(): https://stackoverflow.com/questions/50913673/use-of-get-in-dplyr
+    dplyr::mutate(x = get(vertex_varnames[1]) + .5*get(vertex_varnames[2]), y = sqrt(3/4)*get(vertex_varnames[2])) # note illicit use of get(): https://stackoverflow.com/questions/50913673/use-of-get-in-dplyr
   
   if(is.null(vertex_labels)){
     vertex_labels <- vertex_varnames
@@ -57,7 +62,7 @@ qplot_votevizr <- function(result, split = "", method = "positional", if_cycle =
     
     fpwr_cycle <- result %>% 
       first_preference_win_regions(split = split, method = if_cycle, s = s) %>% 
-      mutate(x = get(vertex_varnames[1]) + .5*get(vertex_varnames[2]), y = sqrt(3/4)*get(vertex_varnames[2]))
+      dplyr::mutate(x = get(vertex_varnames[1]) + .5*get(vertex_varnames[2]), y = sqrt(3/4)*get(vertex_varnames[2]))
     fpwr_to_plot <- fpwr_cycle
     overlay_condorcet <- TRUE
   }else{
@@ -66,23 +71,23 @@ qplot_votevizr <- function(result, split = "", method = "positional", if_cycle =
   }
   
   fpwr_to_plot %>% 
-    ggplot(aes(x = x, y = y)) +
-    geom_polygon(aes(group = candidate, fill = candidate), show.legend = F) +
-    coord_fixed() + 
-    scale_fill_brewer() + 
-    theme_void() + 
-    expand_limits(x = c(-padding, 1 + padding), y = sqrt(3/4)*c(-padding, 1 + padding)) + 
-    annotate(geom = "text", x = c(1,.5,0), y = c(0,sqrt(3/4),0) + label_offset*c(-1,1,-1), label = vertex_labels) -> p
+    ggplot2::ggplot(ggplot2::aes(x = x, y = y)) +
+    ggplot2::geom_polygon(ggplot2::aes(group = candidate, fill = candidate), show.legend = F) +
+    ggplot2::coord_fixed() + 
+    ggplot2::scale_fill_brewer() + 
+    ggplot2::theme_void() + 
+    ggplot2::expand_limits(x = c(-padding, 1 + padding), y = sqrt(3/4)*c(-padding, 1 + padding)) + 
+    ggplot2::annotate(geom = "text", x = c(1,.5,0), y = c(0,sqrt(3/4),0) + label_offset*c(-1,1,-1), label = vertex_labels) -> p
   
   if(overlay_condorcet){
-    p <- p + geom_polygon(data = fpwr_main, aes(group = candidate, fill = candidate), show.legend = F)
+    p <- p + ggplot2::geom_polygon(data = fpwr_main, ggplot2::aes(group = candidate, fill = candidate), show.legend = F)
   }
   
   if(show_fp_result){
     result %>% 
       first_preference_shares(split = split) %>% 
-      mutate(x = get(vertex_varnames[1]) + .5*get(vertex_varnames[2]), y = sqrt(3/4)*get(vertex_varnames[2])) -> fp_result
-    p <- p + geom_point(data = fp_result, aes(x = x, y = y), cex = fp_cex)  
+      dplyr::mutate(x = get(vertex_varnames[1]) + .5*get(vertex_varnames[2]), y = sqrt(3/4)*get(vertex_varnames[2])) -> fp_result
+    p <- p + ggplot2::geom_point(data = fp_result, ggplot2::aes(x = x, y = y), cex = fp_cex)  
   }
   
   if(show_gridlines){

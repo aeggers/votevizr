@@ -11,29 +11,34 @@
 #' @export
 geom_ternary_gridlines <- function(at = (1:3)/4, line_overhang = .05, text_overhang = .1, alpha = .75, col = "darkgray", size = 2){
 
-    if(!requireNamespace("ggplot2", quietly = TRUE)){
-      stop("Package \"ggplot\" needed for geom_ternary_gridlines(). Please install it.",
-           call. = FALSE)
+  if(!requireNamespace("ggplot2", quietly = TRUE)){
+    stop("Package \"ggplot\" needed for geom_ternary_gridlines(). Please install it.",
+          call. = FALSE)
   }
   
-  line_df <- gridlines_df(vals = at, overhang = line_overhang) %>% mutate(x = x + .5*y, y = sqrt(3/4)*y)
+  if(!requireNamespace("dplyr", quietly = TRUE)){
+    stop("Package \"dplyr\" needed for geom_ternary_gridlines(). Please install it.",
+         call. = FALSE)
+  }
+  
+  line_df <- gridlines_df(vals = at, overhang = line_overhang) %>% dplyr::mutate(x = x + .5*y, y = sqrt(3/4)*y)
   
   text_df <- gridlines_df(vals = at, overhang = text_overhang) %>% 
     # ternary transformation
-    mutate(x = x + .5*y, y = sqrt(3/4)*y) %>% 
+    dplyr::mutate(x = x + .5*y, y = sqrt(3/4)*y) %>% 
     # label only half of the endpoints
-    distinct(vertex, value, .keep_all = T) 
+    dplyr::distinct(vertex, value, .keep_all = T) 
   
   list(
-    geom_line(data = line_df,
-              aes(x = x, y = y,
+    ggplot2::geom_line(data = line_df,
+                       ggplot2::aes(x = x, y = y,
                   linetype = vertex, #TODO: make optional
                   group = interaction(vertex, value)),
               show.legend = F, 
               alpha = alpha, 
               col = col),
-    geom_text(data = text_df,
-              aes(x = x, y = y, label = value), 
+    ggplot2::geom_text(data = text_df,
+                       ggplot2::aes(x = x, y = y, label = value), 
               size = size)
   )
   
@@ -56,16 +61,16 @@ one_df <- function(val, overhang = .05){
 
 gridlines_df_for_one <- function(vals, overhang = .05){
   lapply(vals, one_df, overhang = overhang) %>% 
-    bind_rows()
+    dplyr::bind_rows()
 }
 
 gridlines_df <- function(vals = c(.25, .5, .75), overhang = .05){
   g1 <- gridlines_df_for_one(vals, overhang = overhang)
-  bind_rows(
-    g1 %>% mutate(vertex = "x"),
-    g1 %>% mutate(vertex = "y") %>% 
-      select(vertex, value, x = y, y = x, z),
-    g1 %>% mutate(vertex = "z") %>% 
-      select(vertex, value, x = z, y, z = x)
-  ) %>% select(vertex, everything())
+  dplyr::bind_rows(
+    g1 %>% dplyr::mutate(vertex = "x"),
+    g1 %>% dplyr::mutate(vertex = "y") %>% 
+      dplyr::select(vertex, value, x = y, y = x, z),
+    g1 %>% dplyr::mutate(vertex = "z") %>% 
+      dplyr::select(vertex, value, x = z, y, z = x)
+  ) %>% dplyr::select(vertex, everything())
 }
