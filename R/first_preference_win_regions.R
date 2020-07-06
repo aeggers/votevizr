@@ -21,7 +21,7 @@
 #'  preference is worth 1 and a third preference is worth 0.
 #'  Special cases include plurality (\code{s = 0}) and 
 #'  Borda count (\code{s = .5}).
-#'  @param if_cycle If \code{method = "Condorcet"},
+#' @param if_cycle If \code{method = "Condorcet"},
 #'   specifies how the winner is determined in the 
 #'  event of a Condorcet cycle. The first-preference win regions 
 #'  leave open the cyclic area unless \code{if_cycle} is: 

@@ -39,14 +39,14 @@ In November 2018, YouGov ran a [poll](https://yougov.co.uk/topics/politics/artic
 UK-wide, Ben Lauderdale [estimated](https://d25d2506sfb94s.cloudfront.net/cumulus_uploads/document/24pikzv1u7/Ben%20Lauderdale%20Brexit%20deal%20MRP%20report.pdf) that the proportions for each preference ordering were: 
 
 ```{r brexit_orderings, echo = F}
-brexit_result <- list("Remain > Deal > No deal" = .375, 
+brexit_prefs <- list("Remain > Deal > No deal" = .375, 
                "No deal > Deal > Remain" = .228, 
                "Deal > No deal > Remain" = .212, 
                "Remain > No deal > Deal" = .087, 
                "Deal > Remain > No deal" = .059, 
                "No deal > Remain > Deal" = .038)
-df <- data.frame("Ranking" = names(brexit_result), 
-           "Proportion" = unlist(brexit_result),
+df <- data.frame("Ranking" = names(brexit_prefs), 
+           "Proportion" = unlist(brexit_prefs),
            row.names = NULL) 
 knitr::kable(df)
 ```
@@ -69,7 +69,7 @@ This approach is explained in detail in [this paper](http://andy.egge.rs/papers/
 
 First, specify the ordinal preference data in a named list: 
 ```{r pref_data, echo = T}
-brexit_result <- list("Remain > Deal > No deal" = .375, 
+brexit_prefs <- list("Remain > Deal > No deal" = .375, 
                "No deal > Deal > Remain" = .228, 
                "Deal > No deal > Remain" = .212, 
                "Remain > No deal > Deal" = .087, 
@@ -79,6 +79,11 @@ brexit_result <- list("Remain > Deal > No deal" = .375,
 
 The name of each list element is a string combining candidate names (here, "Remain", "Deal", "No deal") in the relevant order. Candidate names should be separated by an unambiguous string (here it's `" > "`, but it could be `"_"`, `"|"`, etc). 
 
+To save you some typing, you can also access this data by typing `data(brexit_prefs)`:
+```{r brexit_data, echo = T, results = T}
+data(brexit_prefs)
+brexit_prefs
+```
 You can now use  `votevizr::qplot_votevizr()` to make plots. (If you want more flexibility, you could also use `votevizr::first_preference_win_regions()` to extract the coordinates of first-preference win regions and build your own plots from scratch. See [`votevizr`: under the hood](under_the_hood.html).)
 
 If we'll be using `votevizr::qplot_votevizr()` to make plots, we need to load not only `votevizr` but also `ggplot2` and `dplyr`:
@@ -91,7 +96,7 @@ library(dplyr)
 Then a call to `votevizr::qplot_votevizr()` shows who would have won an RCV election: 
 
 ```{r qplot_illustration_1}
-brexit_result %>% 
+brexit_prefs %>% 
   qplot_votevizr(split = " > ", method = "RCV")
 ```
 This tells us that if there were an RCV election with ballots that reflected the poll result above, the winner would have been "Remain" or "Deal" -- it was essentially a tie. In fact it was a tie in two respects: No Deal and Deal received essentially the same first-preference support (both well behind Remain); if No deal finished second Remain would win easily, while if Deal finished second Remain and Deal would essentially tie in the final count. Interestingly, "Remain" would win more comfortably either if it won more support (with the dot moving down and to the right) but also if "No deal" won more support (moving the dot down and to the left): this is because "No deal" would then have eliminated "Deal" in the first round, and "Remain" beats "No Deal" more easily than it defeats "Deal".
@@ -99,34 +104,34 @@ This tells us that if there were an RCV election with ballots that reflected the
 Or an election using Borda count, which Deal would win easily:  
 
 ```{r qplot_illustration_2}
-brexit_result %>% 
+brexit_prefs %>% 
   qplot_votevizr(split = " > ", method = "Borda")
 ```
 
 Or a hypothetical positional method where a first-ranking gets 1 point, a last ranking gets 0 points, and a second ranking gets 2/5 of a point, which would produce a near tie between Remain and Deal:  
 
 ```{r qplot_illustration_3}
-brexit_result %>% 
+brexit_prefs %>% 
   qplot_votevizr(split = " > ", method = "positional", s = 2/5)
 ```
 
 Or an election using the Condorcet method:  
 
 ```{r qplot_illustration_4}
-brexit_result %>% 
+brexit_prefs %>% 
   qplot_votevizr(split = " > ", method = "Condorcet")
 ```
 Note the white triangle where there is no winner due to a Condorcet cycle.  We can specify how the winner is chosen in that case -- in this case, by Borda count:   
 
 ```{r qplot_illustration_5}
-brexit_result %>% 
+brexit_prefs %>% 
   qplot_votevizr(split = " > ", method = "Condorcet", if_cycle = "Borda")
 ```
 
 To alter the mapping of alternatives to vertices, use the `vertex_varnames` argument; to make the labels different from the ones in the named list, use the `vertex_labels` argument.[^padding] For example:
 
 ```{r qplot_illustration_6}
-brexit_result %>% 
+brexit_prefs %>% 
   qplot_votevizr(split = " > ", method = "Condorcet", if_cycle = "kemeny", 
                  vertex_varnames = c("Deal", "Remain", "No deal"),
                  vertex_labels = c("D", "R", "ND"))
@@ -143,21 +148,13 @@ brexit_result %>%
 
 We'll use `votevizr::qplot_votevizr()` to visualize the competition among the top three candidates in the 2018 San Fransciso mayoral election.  
 
-First we store the result as a named list. Voters were permitted to submit incomplete rankings (indeed, they were only permitted to rank three candidates), so by the time we get to the final three there are many ballots listing only one candidate. We omit the third-ranked candidate in each case (a "Breed > Leno > Kim" ballot is equivalent to a "Breed > Leno" ballot). 
+Access the data by typing `data(sf_result)`:
 
-```{r sf_illustration}
-sf_result <- list(
-  "Breed_Leno" = .149,
-  "Breed_Kim" = .108,
-  "Breed" = .176,
-  "Leno_Breed" = .083,
-  "Leno_Kim" = .147,
-  "Leno" = .059,
-  "Kim_Breed" = .056,
-  "Kim_Leno" = .188,
-  "Kim" = .034
-)
+```{r sf_data, echo = T, results = T}
+data(sf_result)
+sf_result
 ```
+Voters were permitted to submit incomplete rankings (indeed, they were only permitted to rank three candidates), so by the time we get to the final three candidates (Breed, Leno, and Kim) there are many ballots listing only one candidate. We omit the third-ranked candidate in each case (a "Breed > Leno > Kim" ballot is equivalent to a "Breed > Leno" ballot). 
 
 Now make some plots. First, RCV:
 

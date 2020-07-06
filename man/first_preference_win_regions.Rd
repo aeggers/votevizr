@@ -35,12 +35,7 @@ the named list to recover the candidate names.}
 
 \item{method}{The election method: one of \code{"positional", "Condorcet", "RCV", "plurality", "Borda", "antiplurality"}.}
 
-\item{s}{If \code{method = "positional"}, specifies the
-relative value of a second preference, where a first
-preference is worth 1 and a third preference is worth 0.
-Special cases include plurality (\code{s = 0}) and
-Borda count (\code{s = .5}).
-@param if_cycle If \code{method = "Condorcet"},
+\item{if_cycle}{If \code{method = "Condorcet"},
 specifies how the winner is determined in the
 event of a Condorcet cycle. The first-preference win regions
 leave open the cyclic area unless \code{if_cycle} is:
@@ -50,6 +45,12 @@ is the candidate who loses by the smallest margin
 \item a candidate name (must match a candidate name in \code{result}):
 choose a particular candidate in the event of a cycle
 }}
+
+\item{s}{If \code{method = "positional"}, specifies the
+relative value of a second preference, where a first
+preference is worth 1 and a third preference is worth 0.
+Special cases include plurality (\code{s = 0}) and
+Borda count (\code{s = .5}).}
 }
 \description{
 In an ordinal voting system, a candidate's "first-preference

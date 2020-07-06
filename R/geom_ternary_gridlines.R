@@ -72,5 +72,5 @@ gridlines_df <- function(vals = c(.25, .5, .75), overhang = .05){
       dplyr::select(vertex, value, x = y, y = x, z),
     g1 %>% dplyr::mutate(vertex = "z") %>% 
       dplyr::select(vertex, value, x = z, y, z = x)
-  ) %>% dplyr::select(vertex, everything())
+  ) %>% dplyr::select(vertex, dplyr::everything())
 }

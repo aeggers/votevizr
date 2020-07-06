@@ -4,7 +4,7 @@
 #'
 #' @param pxy,pyx,pzx,pzy Second preference shares. e.g. \code{pxy} is the proportion of ballots that rank \code{y} second, given that they rank \code{x} first.
 #' @param s The score given to second-ranked candidates in the positional method. \code{s} = 0 corresponds to plurality, \code{s}=.5 corresponds to Borda count. 
-#' @param p_vec  A vector of second preference shares. If candidates are A, B, and C (plotted at lower left, top, and lower right), then \code{p_vec} is (pAB, pAC, pBA, pBC, pCA, pCB) [I think -- check this].
+#' @param p_vec  A vector of second preference shares. If candidates are A, B, and C (plotted at lower left, top, and lower right), then \code{p_vec} is (pAB, pAC, pBA, pBC, pCA, pCB).
 
 #' @name positional_tie_line_utils
 NULL

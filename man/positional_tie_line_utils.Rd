@@ -21,7 +21,7 @@ ternary_point_mats_from_p_vec_and_s_v2(p_vec, s)
 
 \item{s}{The score given to second-ranked candidates in the positional method. \code{s} = 0 corresponds to plurality, \code{s}=.5 corresponds to Borda count.}
 
-\item{p_vec}{A vector of second preference shares. If candidates are A, B, and C (plotted at lower left, top, and lower right), then \code{p_vec} is (pAB, pAC, pBA, pBC, pCA, pCB) \link{I think -- check this}.}
+\item{p_vec}{A vector of second preference shares. If candidates are A, B, and C (plotted at lower left, top, and lower right), then \code{p_vec} is (pAB, pAC, pBA, pBC, pCA, pCB).}
 }
 \description{
 These functions are used to plot positional election results. They locate the points where positional tie lines intersect edges of the ternary diagram.

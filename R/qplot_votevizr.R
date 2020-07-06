@@ -5,6 +5,26 @@
 #'  the observed first-preference result.  
 #'
 #' @inheritParams first_preference_win_regions
+#' @importFrom magrittr %>%
+#' @param if_cycle Who is the winner in the event of a Condorcet 
+#' cycle? (Relevant if \code{method = "Condorcet"}.)
+#' Provide a candidate name (must match names in the 
+#' \code{result}), or 
+#' \itemize{
+#' \item \code{"empty"}: no winner specified
+#' \item \code{"kemeny"}: the Kemeny-Young method, i.e. the winner 
+#' is the candidate with the smalling losing margin
+#' \item \code{"RCV" or "IRV"}: use ranked-choice voting 
+#' \item \code{"antiplurality", "Borda", "plurality"}: use 
+#' specified positional method
+#' \item \code{"positional"}: use generic positional method (must 
+#' also specify \code{s})
+#' }  
+#' @param s The value of a second ranking. If 
+#' \code{method = "positional"}, this \code{s} is used to draw 
+#' first-preference win regions. If \code{method = "Condorcet"} and 
+#' \code{if_cycle = "positional"}, this \code{s} is used to 
+#' draw first-preference win regions within the cyclic triangle.
 #' @param vertex_varnames A vector of candidate names (as characters) in 
 #' the order in which they are assigned to vertices of the ternary diagram:
 #' lower-right, top, lower-left. They must match the candidate names 
@@ -53,7 +73,7 @@ qplot_votevizr <- function(result, split = "", method = "positional", if_cycle =
   # that method first and overlay the Condorcet FP win regions 
   if(grepl("condorcet", method, ignore.case = T) & (grepl("^irv$", if_cycle, ignore.case = T) | grepl("^rcv$", if_cycle, ignore.case = T) | grepl("^positional$", if_cycle, ignore.case = T) | grepl("^borda", if_cycle, ignore.case = T))){
     
-    s <- case_when(
+    s <- dplyr::case_when(
       grepl("^plurality", if_cycle, ignore.case = T) ~ 0,
       grepl("^borda", if_cycle, ignore.case = T) ~ .5,
       grepl("^anti[-]?plurality", if_cycle, ignore.case = T) ~ 1,

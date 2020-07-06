@@ -33,21 +33,26 @@ the named list to recover the candidate names.}
 
 \item{method}{The election method: one of \code{"positional", "Condorcet", "RCV", "plurality", "Borda", "antiplurality"}.}
 
-\item{s}{If \code{method = "positional"}, specifies the
-relative value of a second preference, where a first
-preference is worth 1 and a third preference is worth 0.
-Special cases include plurality (\code{s = 0}) and
-Borda count (\code{s = .5}).
-@param if_cycle If \code{method = "Condorcet"},
-specifies how the winner is determined in the
-event of a Condorcet cycle. The first-preference win regions
-leave open the cyclic area unless \code{if_cycle} is:
+\item{if_cycle}{Who is the winner in the event of a Condorcet
+cycle? (Relevant if \code{method = "Condorcet"}.)
+Provide a candidate name (must match names in the
+\code{result}), or
 \itemize{
-\item \code{"kemeny"}: Kemeny-Young method, i.e. the winner
-is the candidate who loses by the smallest margin
-\item a candidate name (must match a candidate name in \code{result}):
-choose a particular candidate in the event of a cycle
+\item \code{"empty"}: no winner specified
+\item \code{"kemeny"}: the Kemeny-Young method, i.e. the winner
+is the candidate with the smalling losing margin
+\item \code{"RCV" or "IRV"}: use ranked-choice voting
+\item \code{"antiplurality", "Borda", "plurality"}: use
+specified positional method
+\item \code{"positional"}: use generic positional method (must
+also specify \code{s})
 }}
+
+\item{s}{The value of a second ranking. If
+\code{method = "positional"}, this \code{s} is used to draw
+first-preference win regions. If \code{method = "Condorcet"} and
+\code{if_cycle = "positional"}, this \code{s} is used to
+draw first-preference win regions within the cyclic triangle.}
 
 \item{vertex_varnames}{A vector of candidate names (as characters) in
 the order in which they are assigned to vertices of the ternary diagram:
