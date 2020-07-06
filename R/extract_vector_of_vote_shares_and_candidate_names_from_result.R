@@ -5,13 +5,10 @@
 #' @param result A named list.
 #' @param split The character to be used to split the names of \code{result}
 #' into a vector of candidate names.   
-#' @return A list: \itemize{ 
-#' \item \code{candidate_names} is a vector indicating the candidate names extracted from \code{result}.
-#' \item \code{vector_of_vote_shares} is a vector of ballot shares; if
+#' @return A list with named elements \code{"candidate_names"}, a vector indicating the candidate names extracted from \code{result}, and \code{"vector_of_vote_shares"}, a vector of ballot shares. If
 #'  \code{candidate_names} is \code{c("a", "b", "c")}, then the vector
-#'   yields \code{c(v_ab, v_ac, v_ba, v_bc, v_ca, v_cb, v_ax, v_bx, v_cx)}, 
+#'   of vote ballots shares can be written \code{c(v_ab, v_ac, v_ba, v_bc, v_ca, v_cb, v_ax, v_bx, v_cx)}, 
 #'   where e.g. \code{v_ab} is the share of ballots listing \code{a} first and \code{b} second (implicitly \code{c} third), and \code{v_ax} indicates the share of ballots listing candidate \code{a} only.
-#'  } 
 #'  
 #' @export
 extract_vector_of_vote_shares_and_candidate_names_from_result <- function(result, split = ""){

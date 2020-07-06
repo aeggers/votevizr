@@ -17,11 +17,10 @@ extract_vector_of_vote_shares_and_candidate_names_from_result(
 into a vector of candidate names.}
 }
 \value{
-A list: \itemize{
-\item \code{candidate_names} is a vector indicating the candidate names extracted from \code{result}.
-\item \code{vector_of_vote_shares} is a vector of ballot shares; if
+A list with named elements \code{"candidate_names"}, a vector indicating the candidate names extracted from \code{result}, and \code{"vector_of_vote_shares"}, a vector of ballot shares. If
 \code{candidate_names} is \code{c("a", "b", "c")}, then the vector
-yields \code{c(v_ab, v_ac, v_ba, v_bc, v_ca, v_cb, v_ax, v_bx, v_cx)}, where e.g. \code{v_ab} is the share of ballots listing \code{a} first and \code{b} second (implicitly \code{c} third), and \code{v_ax} indicates the share of ballots listing candidate \code{a} only.
+of vote ballots shares can be written \code{c(v_ab, v_ac, v_ba, v_bc, v_ca, v_cb, v_ax, v_bx, v_cx)},
+where e.g. \code{v_ab} is the share of ballots listing \code{a} first and \code{b} second (implicitly \code{c} third), and \code{v_ax} indicates the share of ballots listing candidate \code{a} only.
 }
 \description{
 Used by \code{votevizr} plotting functions to process the election result passed by the user as a named list.
