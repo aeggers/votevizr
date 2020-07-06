@@ -1,0 +1,184 @@
+---
+title: "`votevizr`: under the hood"
+author: "Andy Eggers"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{underthehood}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.retina = 5,
+  fig.align = "center"
+)
+```
+
+The `votevizr` package provides tools for diagramming ordinal election outcomes given preference data.
+
+The [Overview](overview.html) vignette shows how to make diagrams using the `votevizr::qplot_votevizr()` convenience function. 
+
+This vignette is for "power users" who want more flexibility.   
+
+## Inputting preference data 
+
+We will use the November 2018 Brexit poll result, which we store as a named list: 
+```{r pref_data, echo = T}
+brexit_result <- list("Remain > Deal > No deal" = .375, 
+               "No deal > Deal > Remain" = .228, 
+               "Deal > No deal > Remain" = .212, 
+               "Remain > No deal > Deal" = .087, 
+               "Deal > Remain > No deal" = .059, 
+               "No deal > Remain > Deal" = .038)
+```
+
+
+## Extracting vertices of the first-preference win regions 
+
+```{r setup_1, results = "hide", message = F, warning = F}
+library(votevizr)
+```
+
+The `votevizr::first_preference_win_regions()` function takes the election/poll result as an argument and returns a dataframe with the vertices of each candidate's first-preference win region in a given voting system.
+
+An example:  
+
+```{r brexit_illustration_1, echo = T}
+brexit_rcv <- first_preference_win_regions(brexit_result, split = " > ", method = "RCV")
+
+knitr::kable(brexit_rcv)
+```
+
+Each row in `brexit_rcv` provides the coordinates for a vertex on the first-preference win region of a candidate (specified in the `candidate` column). The candidate names are extracted from the names of the `brexit_result` list. 
+
+At this point you could make a figure using base `R`.[^baseR]  
+
+[^baseR]: This was my initial approach, so I have a lot of spare to code to share -- get in touch if you're interested.
+
+## Plotting first-preference win regions with `ggplot2`
+
+Because the output of `votevizr::first_preference_win_regions()` is in "tidy" format, we can more easily plot the first-preference win regions in `ggplot2`. 
+
+```{r setup_2, results = "hide", message = F, warning = F}
+library(ggplot2)
+library(dplyr)
+```
+
+Here is the most basic version: 
+
+```{r plot_brexit_basic}
+brexit_rcv %>% 
+  ggplot(aes(x = Remain, y = Deal)) +
+  geom_polygon(aes(group = candidate, fill = candidate)) + 
+  labs(fill = "Winning\ncandidate")
+```
+
+I prefer to plot the results in barycentric or ternary coordinates, because it treats the three alternatives more symmetrically. 
+
+The `ggtern` package is specifically for making ternarty diagrams in `R`. But `ggtern` causes conflicts with `ggplot2` and has lots of functionality we don't need, and it is surprisingly easy to make a ternary diagram without it. So we'll proceed with `ggplot2` alone.  
+
+To convert data from the simplex in $(x, y, z)$ coordinates into ternary coordinates $(x', y')$, the transformation is
+\begin{eqnarray}
+x' &:=& x + \frac{1}{2}y \\
+y' &:=& \frac{\sqrt{3}}{2} y. \\
+\end{eqnarray} 
+
+So first do that transformation:
+```{r brexit_ternary_transform}
+brexit_rcv %>% 
+  mutate(Remain = Remain + .5*Deal, Deal = sqrt(3/4)*Deal) ->
+  brexit_rcv_ternary
+```
+
+Then plot it, with some added style:
+```{r plot_brexit_ternary}
+brexit_rcv_ternary %>%
+  ggplot(aes(x = Remain, y = Deal)) +
+  geom_polygon(aes(group = candidate, fill = candidate), show.legend = F) +
+  coord_fixed() + # ensures we get an equilateral triangle
+  scale_fill_brewer() + 
+  theme_void() + 
+  expand_limits(x = c(-.1, 1.1), y = sqrt(3/4)*c(-.1, 1.1)) + 
+  annotate(geom = "text", x = c(1,.5,0), y = c(0,sqrt(3/4),0) + .05*c(-1,1,-1), label = c("Remain", "Deal", "No deal")) -> p
+p
+```
+
+## Convenience functions for plotting
+
+We can also add a dot for the observed result, using the `votevizr::first_preference_shares()` method to extract the observed first-preference shares: 
+```{r brexit_with_result}
+brexit_fps <- brexit_result %>% 
+  first_preference_shares(split = " > ") %>% 
+  mutate(Remain = Remain + .5*Deal, Deal = sqrt(3/4)*Deal)
+
+p2 <- p + geom_point(data = brexit_fps, aes(x = Remain, y = Deal), cex = .75)
+p2
+```
+
+Now add gridlines using `votevizr::geom_ternary_gridlines()`: 
+```{r add_gridlines}
+p2 + 
+  geom_ternary_gridlines()
+```
+
+## Handling Condorcet completion methods 
+
+`votevizr` has two ways of handling Condorcet completion methods, i.e. rules for determining a winner in the event of a Condorcet cycle.
+
+The user specifies the completion method (both for `first_preference_win_regions()` or `qplot_votevizr()`) with the `if_cycle` argument.
+
+- when `if_cycle` is `"empty"`, `"kemeny"`, or the name of a candidate, then `first_preference_win_regions()` specifies the complete first-preference win regions and `qplot_votevizr()` simply plots them. 
+- when `if_cycle` is `"RCV"`, `"IRV"`, `"plurality"`, `"borda"`, `"anti-plurality"`, or `"positional"`, then `first_preference_win_regions()` leaves the cyclic triangle empty; `qplot_votevizr()` plots the first-preference win regions for the *completion method* (e.g. RCV when `if_cycle = "RCV"`) first and then overlays the Condorcet first-preference win regions.[^why]
+
+[^why]: There may be a clever way to make `first_preference_win_regions()` get the first-preference win regions for both Condorcet and the completion method and combine them correctly, but for plotting it was easier to just overlay two plots. 
+
+Let's illustrate this second approach for the case where the Brexit winner is to be determined by Condorcet with RCV used in the event of a cycle. 
+
+First let's show the diagram with the Condorcet cycle not filled in. Get the first-preference win regions and transform them for the ternary diagram:
+
+```{r brexit_condorcet}
+brexit_result %>% 
+  first_preference_win_regions(split = " > ", 
+                               method = "condorcet") %>% 
+  mutate(Remain = Remain + .5*Deal, Deal = sqrt(3/4)*Deal) -> brexit_condorcet 
+```
+
+Now, reusing code from above, we make the plot:
+```{r brexit_condorcet_plot}
+brexit_condorcet %>% 
+  ggplot(aes(x = Remain, y = Deal)) +
+  geom_polygon(aes(group = candidate, fill = candidate), show.legend = F) +
+  coord_fixed() +
+  scale_fill_brewer() + 
+  theme_void() + 
+  expand_limits(x = c(-.1, 1.1), y = sqrt(3/4)*c(-.1, 1.1)) + 
+  annotate(geom = "text", x = c(1,.5,0), y = c(0,sqrt(3/4),0) + .05*c(-1,1,-1), label = c("Remain", "Deal", "No deal")) 
+```
+
+Note the empty triangle. For first-preference results in this area (holding fixed the pattern of lower preferences), there is a Condorcet cycle: "Remain" beats "Deal", "Deal" beats "No deal", and "No deal" beats remain. 
+
+Now suppose the winner is chosen by RCV if there is a cycle. We illustrate this rule by redrawing the RCV plot from above (stored as `p`) and then overlaying the Condorcet first-preference win regions: 
+
+```{r brexit_condorcet_rcv}
+p +   # p was the RCV figure 
+  geom_polygon(data = brexit_condorcet, aes(group = candidate, fill = candidate), show.legend = F)  # overlay the Condorcet figure
+```
+
+We can do the same using any positional method (Borda, plurality, antiplurality, or others). 
+
+To produce the same figure via `qplot_votevizr()`: 
+```{r brexit_condorcet_rcv_2}
+brexit_result %>% 
+  qplot_votevizr(split = " > ", method = "condorcet", if_cycle = "RCV")  
+```
+
+## Want to know more?
+
+Read my paper, forthcoming in *Social Choice and Welfare* (preprint [here](http://andy.egge.rs/papers/diagramming_election_results_v7_for_RR2.pdf)), which explains the figures in more detail and discusses previous attempts to represent election results in ternary diagrams. 
+
+See also the [Overview](overview.html) vignette for some basic background about the figures and more on the `qplot_votevizr()` function. 
+

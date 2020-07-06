@@ -23,12 +23,12 @@
 #'  Borda count (\code{s = .5}).
 #'  @param if_cycle If \code{method = "Condorcet"},
 #'   specifies how the winner is determined in the 
-#'  event of a Condorcet cycle. For now, one of 
+#'  event of a Condorcet cycle. The first-preference win regions 
+#'  leave open the cyclic area unless \code{if_cycle} is: 
 #'  \itemize{
-#'  \item \code{NULL}: no winner is specified
 #'  \item \code{"kemeny"}: Kemeny-Young method, i.e. the winner 
 #'  is the candidate who loses by the smallest margin
-#'  \item a candidate name (extracted from \code{result}): 
+#'  \item a candidate name (must match a candidate name in \code{result}): 
 #'  choose a particular candidate in the event of a cycle
 #'  } 
 
@@ -306,23 +306,20 @@ condorcet_first_preference_win_regions <- function(result, split = "", if_cycle 
     first_inner_intersection_mat = rbind(AB.BC.int, AB.BC.int, AB.AC.int)
     second_inner_intersection_mat = rbind(AB.AC.int, AC.BC.int, AC.BC.int)
   }
-  # now the middle point
   
-  if(if_cycle %in% c("borda", "IRV", "RCV", "Borda")){
-    stop("Haven't done this yet")
-  } 
-  
+  # now what to do if a cycle?
   if(if_cycle == "kemeny"){
     k_mat = rbind(kp, kp, kp)
   }else if((if_cycle == candidate_names[1] & forward.cycle) | (if_cycle == candidate_names[3] & !forward.cycle)){
     k_mat = rbind(AB.BC.int, AB.BC.int, AB.BC.int)
-  }else if((if_cycle == candidate_names[2] & forward.cycle) | (if_cycle == candidate_names[2] & !forward.cycle)){
+  }else if((if_cycle == candidate_names[3] & forward.cycle) | (if_cycle == candidate_names[2] & !forward.cycle)){
     k_mat = rbind(AB.AC.int, AB.AC.int, AB.AC.int)
   }else if((if_cycle == candidate_names[2] & forward.cycle) | (if_cycle == candidate_names[1] & !forward.cycle)){
     k_mat = rbind(AC.BC.int, AC.BC.int, AC.BC.int)
-  }else if(if_cycle == "empty"){
+  }else{
+    # this leaves it empty. 
     k_mat = first_inner_intersection_mat
-  }else{stop("You provided an unexpected argument to if_cycle.")} 
+  } 
   
   j = 1
   A_df <- data.frame("candidate" = candidate_names[1], rbind(vertex_mat[j,], first_edge_mat[j,], first_inner_intersection_mat[j, ], k_mat[j,], second_inner_intersection_mat[j,], second_edge_mat[j,], vertex_mat[j,]))

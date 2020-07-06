@@ -21,30 +21,62 @@
 #' @param fp_cex \code{cex} parameter for plotting the first preference 
 #' result.
 #' @export
-qplot_votevizr <- function(result, split = "", method = "positional", if_cycle = "empty", s = .5, vertex_varnames = NULL, vertex_labels = NULL, label_offset = .05, padding = .1, show_gridlines = F, show_fp_result = T, fp_cex = 1){
+qplot_votevizr <- function(result, split = "", method = "positional", if_cycle = "empty", s = .5, vertex_varnames = NULL, vertex_labels = NULL, label_offset = .05, padding = .1, show_gridlines = T, show_fp_result = T, fp_cex = 1){
+  
+  if(!requireNamespace("ggplot2", quietly = TRUE)){
+    stop("Package \"ggplot\" needed for qplot_votevizr(). Please install it.",
+         call. = FALSE)
+  }
   
   # get the polygons for first-preference win regions
-  fpwr <- result %>% 
-    first_preference_win_regions(split = split, method = method, if_cycle = if_cycle, s = s)
+  fpwr_main <- result %>% 
+    first_preference_win_regions(split = split, method = method, if_cycle = if_cycle, s = s) 
   
   if(is.null(vertex_varnames)){
-    vertex_varnames <- unique(as.character(fpwr$candidate))
+    vertex_varnames <- unique(as.character(fpwr_main$candidate))
   }
+  
+  fpwr_main <- fpwr_main %>%
+    mutate(x = get(vertex_varnames[1]) + .5*get(vertex_varnames[2]), y = sqrt(3/4)*get(vertex_varnames[2])) # note illicit use of get(): https://stackoverflow.com/questions/50913673/use-of-get-in-dplyr
   
   if(is.null(vertex_labels)){
     vertex_labels <- vertex_varnames
   }
   
-  fpwr %>%
-  # we do the transformation by passing 
-  mutate(x = get(vertex_varnames[1]) + .5*get(vertex_varnames[2]), y = sqrt(3/4)*get(vertex_varnames[2])) %>%
-  ggplot(aes(x = x, y = y)) +
+  # if have specified a Condorcet completion method that is not handled by
+  # first_preference_win_regions(), then we plot 
+  # that method first and overlay the Condorcet FP win regions 
+  if(grepl("condorcet", method, ignore.case = T) & (grepl("^irv$", if_cycle, ignore.case = T) | grepl("^rcv$", if_cycle, ignore.case = T) | grepl("^positional$", if_cycle, ignore.case = T) | grepl("^borda", if_cycle, ignore.case = T))){
+    
+    s <- case_when(
+      grepl("^plurality", if_cycle, ignore.case = T) ~ 0,
+      grepl("^borda", if_cycle, ignore.case = T) ~ .5,
+      grepl("^anti[-]?plurality", if_cycle, ignore.case = T) ~ 1,
+      TRUE ~ s
+    )
+    
+    fpwr_cycle <- result %>% 
+      first_preference_win_regions(split = split, method = if_cycle, s = s) %>% 
+      mutate(x = get(vertex_varnames[1]) + .5*get(vertex_varnames[2]), y = sqrt(3/4)*get(vertex_varnames[2]))
+    fpwr_to_plot <- fpwr_cycle
+    overlay_condorcet <- TRUE
+  }else{
+    fpwr_to_plot <- fpwr_main
+    overlay_condorcet <- FALSE
+  }
+  
+  fpwr_to_plot %>% 
+    ggplot(aes(x = x, y = y)) +
     geom_polygon(aes(group = candidate, fill = candidate), show.legend = F) +
     coord_fixed() + 
     scale_fill_brewer() + 
     theme_void() + 
     expand_limits(x = c(-padding, 1 + padding), y = sqrt(3/4)*c(-padding, 1 + padding)) + 
     annotate(geom = "text", x = c(1,.5,0), y = c(0,sqrt(3/4),0) + label_offset*c(-1,1,-1), label = vertex_labels) -> p
+  
+  if(overlay_condorcet){
+    p <- p + geom_polygon(data = fpwr_main, aes(group = candidate, fill = candidate), show.legend = F)
+  }
   
   if(show_fp_result){
     result %>% 

@@ -42,12 +42,12 @@ Special cases include plurality (\code{s = 0}) and
 Borda count (\code{s = .5}).
 @param if_cycle If \code{method = "Condorcet"},
 specifies how the winner is determined in the
-event of a Condorcet cycle. For now, one of
+event of a Condorcet cycle. The first-preference win regions
+leave open the cyclic area unless \code{if_cycle} is:
 \itemize{
-\item \code{NULL}: no winner is specified
 \item \code{"kemeny"}: Kemeny-Young method, i.e. the winner
 is the candidate who loses by the smallest margin
-\item a candidate name (extracted from \code{result}):
+\item a candidate name (must match a candidate name in \code{result}):
 choose a particular candidate in the event of a cycle
 }}
 }

@@ -10,6 +10,11 @@
 #' @param size Size of text labels.
 #' @export
 geom_ternary_gridlines <- function(at = (1:3)/4, line_overhang = .05, text_overhang = .1, alpha = .75, col = "darkgray", size = 2){
+
+    if(!requireNamespace("ggplot2", quietly = TRUE)){
+      stop("Package \"ggplot\" needed for geom_ternary_gridlines(). Please install it.",
+           call. = FALSE)
+  }
   
   line_df <- gridlines_df(vals = at, overhang = line_overhang) %>% mutate(x = x + .5*y, y = sqrt(3/4)*y)
   
@@ -44,14 +49,13 @@ one_line <- function(val, overhang = .05){
 }
 
 one_df <- function(val, overhang = .05){
-  data <- tibble(value = val,
+  data <- data.frame(value = val,
                  one_line(val, overhang))
   data
 }  
 
 gridlines_df_for_one <- function(vals, overhang = .05){
-  tibble(val = vals) %>% 
-    purrr::pmap(one_df, overhang = overhang) %>% 
+  lapply(vals, one_df, overhang = overhang) %>% 
     bind_rows()
 }
 
