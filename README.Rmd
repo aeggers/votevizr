@@ -92,6 +92,6 @@ brexit_prefs %>%
 
 ## Vignettes
 
-`vignette("overview")` gives a more detailed overview of the package focusing on the `qplot_votevizr()` method. 
+`vignette("votevizr_overview")` gives a more detailed overview of the package focusing on the `qplot_votevizr()` method. 
 
 `vignette("under_the_hood")` shows what is happening "under the hood", which is useful if you want more plotting flexibilty than `qplot_votevizr()` provides.
