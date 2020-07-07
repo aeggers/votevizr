@@ -99,23 +99,25 @@ Then a call to `votevizr::qplot_votevizr()` shows who would have won an RCV elec
 brexit_prefs %>% 
   qplot_votevizr(split = " > ", method = "RCV")
 ```
-This tells us that if there were an RCV election with ballots that reflected the poll result above, the winner would have been "Remain" or "Deal" -- it was essentially a tie. In fact it was a tie in two respects: No Deal and Deal received essentially the same first-preference support (both well behind Remain); if No deal finished second Remain would win easily, while if Deal finished second Remain and Deal would essentially tie in the final count. Interestingly, "Remain" would win more comfortably either if it won more support (with the dot moving down and to the right) but also if "No deal" won more support (moving the dot down and to the left): this is because "No deal" would then have eliminated "Deal" in the first round, and "Remain" beats "No Deal" more easily than it defeats "Deal".
+This tells us that if there were an RCV election with ballots that reflected the poll result above, the winner would have been "Remain" or "Deal" -- it was essentially a tie. In fact it was a tie in two respects: "No deal" and "Deal" received essentially the same first-preference support (both well behind "Remain"); if "No deal" finished second "Remain" would win easily, while if "Deal" finished second "Remain" and "Deal" would essentially tie in the final count. To really understand how the figure shows this, you'll have to look at [my paper](http://andy.egge.rs/papers/diagramming_election_results_v7_for_RR2.pdf).  
 
-Or an election using Borda count, which Deal would win easily:  
+Interestingly, "Remain" would win more comfortably not just if it won more support (with the dot moving down and to the right) but also if "No deal" won more support (moving the dot down and to the left): this is because "No deal" would then have eliminated "Deal" in the first round, and "Remain" beats "No Deal" more easily than it defeats "Deal". 
+
+If instead we used Borda count, "Deal" would win easily:  
 
 ```{r qplot_illustration_2}
 brexit_prefs %>% 
   qplot_votevizr(split = " > ", method = "Borda")
 ```
 
-Or a hypothetical positional method where a first-ranking gets 1 point, a last ranking gets 0 points, and a second ranking gets 2/5 of a point, which would produce a near tie between Remain and Deal:  
+Here is a hypothetical positional method where a first ranking gets 1 point, a last ranking gets 0 points, and a second ranking gets 2/5 of a point, which would produce a near tie between Remain and Deal:  
 
 ```{r qplot_illustration_3}
 brexit_prefs %>% 
   qplot_votevizr(split = " > ", method = "positional", s = 2/5)
 ```
 
-Or an election using the Condorcet method:  
+Here we have the Condorcet method:  
 
 ```{r qplot_illustration_4}
 brexit_prefs %>% 
@@ -141,10 +143,6 @@ brexit_prefs %>%
 
 
 # Another illustration: San Fransciso mayoral election, 2018 
-
-<!-- Users familiar with `ggplot` should be able to use `first_preference_win_regions()`, `first_preference_shares()`, and  `geom_ternary_gridlines()` along with the simple ternary transformation above to make any figure they want.  -->
-
-<!-- For convenience, `votevizr::qplot_votevizr()` wraps everything shown above in one function. -->
 
 We'll use `votevizr::qplot_votevizr()` to visualize the competition among the top three candidates in the 2018 San Fransciso mayoral election.  
 
