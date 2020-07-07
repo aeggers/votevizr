@@ -4,9 +4,7 @@ Title: Tools For Vizualizing Election Outcomes
 Version: 0.1.0
 Author: Andy Eggers
 Maintainer: Andy Eggers <aeggers@gmail.com>
-Description: Produces diagrams based on the ternary/barycentric plot
-    to represent the result of ordinal elections for three and 
-    in some cases more candidates.
+Description: Tools for diagramming election results.
 License: CC0
 Encoding: UTF-8
 LazyData: true
