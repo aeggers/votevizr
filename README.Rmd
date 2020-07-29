@@ -27,7 +27,7 @@ The `votevizr` package helps you make diagrams to better understand election res
 - [Condorcet methods](https://en.wikipedia.org/wiki/Condorcet_method), with many ways of resolving cycles
 - [ranked-choice voting](https://en.wikipedia.org/wiki/Instant-runoff_voting) (aka RCV, instant-runoff voting/IRV, alternative vote/AV, single-winner STV, preferential voting)   
 
-`votevizr` implements the methods I develop in [this paper](http://andy.egge.rs/papers/diagramming_election_results_v7_for_RR2.pdf), which has been accepted at the journal [*Social Choice and Welfare*](https://www.springer.com/journal/355). The paper explains the figures in detail and discusses previous attempts to represent election results in ternary diagrams. 
+`votevizr` implements the methods I develop in [this paper](https://doi.org/10.1007/s00355-020-01274-y) published in [*Social Choice and Welfare*](https://www.springer.com/journal/355). The paper explains the figures in detail and discusses previous attempts to represent election results in ternary diagrams.
 
 ## Installation
 

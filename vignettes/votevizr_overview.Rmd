@@ -62,7 +62,7 @@ My approach is to
 - map *first-preference shares* (proportion of top rankings each alternative receives) onto the $x$ and $y$ dimensions (either in standard coordinates or barycentric/ternary coordinates), and 
 - divide this space into *first-preference win regions* where each candidate would have won given the voting system and the observed pattern of lower preferences. 
 
-This approach is explained in detail in [this paper](http://andy.egge.rs/papers/diagramming_election_results_v7_for_RR2.pdf), to be published at *Social Choice and Welfare*. 
+This approach is explained in detail in [this paper](https://doi.org/10.1007/s00355-020-01274-y) [(working paper version here)](http://andy.egge.rs/papers/diagramming_election_results_v7_for_RR2.pdf). 
 
 
 # Using `votevizr` for the Brexit poll
@@ -183,7 +183,7 @@ qplot_votevizr(sf_result, split = "_", method = "Condorcet", if_cycle = "kemeny"
 
 ## Want to know more?
 
-Read my paper, forthcoming in *Social Choice and Welfare* (preprint [here](http://andy.egge.rs/papers/diagramming_election_results_v7_for_RR2.pdf)), which explains the figures in more detail and discusses previous attempts to represent election results in ternary diagrams. 
+Read my paper *Social Choice and Welfare* ([preprint](http://andy.egge.rs/papers/diagramming_election_results_v7_for_RR2.pdf), [published](https://doi.org/10.1007/s00355-020-01274-y)), which explains the figures in more detail and discusses previous attempts to represent election results in ternary diagrams. 
 
 See also the [Under the hood](under_the_hood.html) vignette for more about how `votevizr` works, especially if you want more flexibility in making plots. 
   

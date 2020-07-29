@@ -178,7 +178,7 @@ brexit_result %>%
 
 ## Want to know more?
 
-Read my paper, forthcoming in *Social Choice and Welfare* (preprint [here](http://andy.egge.rs/papers/diagramming_election_results_v7_for_RR2.pdf)), which explains the figures in more detail and discusses previous attempts to represent election results in ternary diagrams. 
+Read my paper *Social Choice and Welfare* ([preprint](http://andy.egge.rs/papers/diagramming_election_results_v7_for_RR2.pdf), [published](https://doi.org/10.1007/s00355-020-01274-y)), which explains the figures in more detail and discusses previous attempts to represent election results in ternary diagrams. 
 
 See also the [Overview](overview.html) vignette for some basic background about the figures and more on the `qplot_votevizr()` function. 
 

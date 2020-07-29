@@ -1,0 +1,14 @@
+citHeader("To cite votevizr in publications use:")
+
+citEntry(
+  entry    = "Article",
+  title    = "A diagram for analyzing ordinal voting systems",
+  author   = person(family = "Eggers", given = "Andrew", middle = "C."),
+  journal  = "Social Choice and Welfare",
+  year     = 2020,
+  publisher = "Springer",
+  url      = "https://doi.org/10.1007/s00355-020-01274-y",
+  doi      = "10.1007/s00355-020-01274-y",
+  textVersion = paste("Andrew C. Eggers, `A diagram for analyzing ordinal voting systems', Social Choice and Welfare, 2020, https://doi.org/10.1007/s00355-020-01274-y.")
+
+)
