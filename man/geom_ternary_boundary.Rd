@@ -4,7 +4,7 @@
 \alias{geom_ternary_boundary}
 \title{Draw boundary for a ternary diagram}
 \usage{
-geom_ternary_boundary(alpha = 0.75, col = "darkgray")
+geom_ternary_boundary(alpha = 1, col = "black")
 }
 \arguments{
 \item{alpha}{Opacity of boundary lines.}
