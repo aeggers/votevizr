@@ -56,6 +56,8 @@ ternary_point_mats_from_p_vec_and_s_v2 = function(p_vec, s){
   list(ab_point_mat, ac_point_mat, bc_point_mat)
 }
 
+#' @rdname positional_tie_line_utils
+#' @export
 ternary_point_mats_from_p_vec_and_s_v3 = function(p_vec, s){
   ab_point_mat = point_mat_in_xyz_form_v2(p_vec, s) # abc => xyz
   ac_point_mat_xyz = point_mat_in_xyz_form_v2(p_vec[c(2,1,5,6,3,4)], s) # acb => xyz
