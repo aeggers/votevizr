@@ -6,6 +6,7 @@
 \alias{to_point_in_xyz_form_v2}
 \alias{point_mat_in_xyz_form_v2}
 \alias{ternary_point_mats_from_p_vec_and_s_v2}
+\alias{ternary_point_mats_from_p_vec_and_s_v3}
 \title{Locate endpoints of positional tie lines}
 \usage{
 from_point_in_xyz_form_v2(pxy, pyx, s)
@@ -15,6 +16,8 @@ to_point_in_xyz_form_v2(pxy, pyx, pzx, pzy, s)
 point_mat_in_xyz_form_v2(p_vec, s)
 
 ternary_point_mats_from_p_vec_and_s_v2(p_vec, s)
+
+ternary_point_mats_from_p_vec_and_s_v3(p_vec, s)
 }
 \arguments{
 \item{pxy, pyx, pzx, pzy}{Second preference shares. e.g. \code{pxy} is the proportion of ballots that rank \code{y} second, given that they rank \code{x} first.}
