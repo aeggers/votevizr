@@ -33,7 +33,7 @@ represent election results in ternary diagrams.
 To install from GitHub:
 
 ``` r
-devtools::install_github("aeggers/votevizr")
+devtools::install_github("aeggers/votevizr", build_vignettes = TRUE)
 ```
 
 ## Example
